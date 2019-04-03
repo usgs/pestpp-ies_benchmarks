@@ -1,0 +1,52 @@
+environment:
+  
+  matrix:
+    - PYTHON_VERSION: "3.6"
+      CONDA_INSTALL_LOCN: "C:\\Miniconda36-x64"
+
+
+platform:
+    - x64
+
+build: false
+
+cache:
+  - '%LOCALAPPDATA%\pip\Cache'
+  - '%USERPROFILE%\.cache\pyemu'
+
+init:
+  - echo %PYTHON_VERSION% %CONDA_INSTALL_LOCN%
+
+install:
+  - git clone -b develop --depth 1 https://github.com/jtwhite79/pestpp
+  - set PATH=%CONDA_INSTALL_LOCN%;%CONDA_INSTALL_LOCN%\scripts;%PATH%;
+  - set PYTHONUNBUFFERED=1
+  - conda config --set always_yes true
+  - conda update conda
+  - conda update --all
+  - conda config --set show_channel_urls yes
+  - conda config --prepend channels conda-forge
+  - conda info -a
+  - conda install --yes python=%PYTHON_VERSION% pip numpy scipy pandas nose matplotlib jupyter notebook cartopy
+  - pip install coveralls
+  - pip install pyshp
+  - pip install nose-timer
+  - git clone --depth 1 --single-branch -b develop https://github.com/modflowpy/flopy.git
+  - cd flopy
+  - python setup.py install
+  - cd ..
+  - git clone --depth 1 --single-branch -b develop https://github.com/jtwhite79/pyemu.git
+  - cd pyemu
+  - python setup.py install
+  - cd ..
+  # Show the installed packages + versions
+  - conda list
+  - set PATH=test_bin\win;..\test_bin\win;..\..\test_bin\win;%PATH%;
+
+test_script:
+  - nosetests -v ies_test_part1.py
+
+after_test:
+ - echo "done"
+matrix:
+  fast_finish: true
