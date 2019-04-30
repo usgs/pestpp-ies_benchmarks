@@ -216,7 +216,7 @@ def tenpar_base_run_test():
 def tenpar_xsec_combined_autoadaloc_test():
     """testing combined matrix + autoadaloc"""
     model_d = "ies_10par_xsec"
-    test_d = os.path.join(model_d, "master_comb_aal_test")
+    test_d = os.path.join(model_d, "master_comb_aal_test1")
     template_d = os.path.join(model_d, "test_template")
 
     if not os.path.exists(template_d):
@@ -237,7 +237,7 @@ def tenpar_xsec_combined_autoadaloc_test():
 
     mat = pyemu.Matrix.from_names(pst.nnz_obs_names,pst.adj_par_names).to_dataframe()
     mat.loc[:,:] = 1
-    mat.iloc[0,0] = 0
+    mat.loc[:,pst.adj_par_names[::2]] = 0
     pyemu.Matrix.from_dataframe(mat).to_ascii(os.path.join(template_d,"loc.mat"))
 
     pst.pestpp_options["ies_localizer"] = "loc.mat"
@@ -264,7 +264,13 @@ def tenpar_xsec_combined_autoadaloc_test():
     pyemu.os_utils.start_slaves(template_d, exe_path, "pest_aal_restart.pst", num_slaves=10,
                                 master_dir=test_d, verbose=True, slave_root=model_d,
                                 port=port)
-
+    df = pyemu.Matrix.from_ascii(os.path.join(test_d,"pest_aal_restart.1.autoadaloc.tCC.mat")).to_dataframe()
+    print(df.loc[:,pst.adj_par_names[::2]].sum())
+    pe2 = pd.read_csv(os.path.join(test_d,"pest_aal_restart.0.par.csv"))
+    diff = pe - pe2
+    print(diff.loc[:,pst.adj_par_names[::2]].sum())
+    assert df.loc[:,pst.adj_par_names[::2]].sum().sum() == 0.0
+    assert diff.loc[:,pst.adj_par_names[::2]].sum().sum() == 0.0
 
 def freyberg_aal_test():
     import flopy
@@ -463,8 +469,95 @@ def freyberg_aal_invest():
             plt.close(fig)
 
 
+def tenpar_high_phi_test():
+    model_d = "ies_10par_xsec"
+    test_d = os.path.join(model_d, "master_high_phi_test")
+    template_d = os.path.join(model_d, "test_template")
 
+    if not os.path.exists(template_d):
+        raise Exception("template_d {0} not found".format(template_d))
+    pst_name = os.path.join(template_d, "pest.pst")
+    pst = pyemu.Pst(pst_name)
 
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    #shutil.copytree(template_d, test_d)
+    pst.pestpp_options = {}
+    pst.pestpp_options["ies_num_reals"] = 10
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = [0.9,1.0]
+    pst.pestpp_options['ies_subset_size'] = 10
+    pst.pestpp_options["ies_debug_high_subset_phi"] =True
+    pst.control_data.noptmax = 1
+    pst.write(os.path.join(template_d,"pest_high_phi.pst"))
+    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               port=port)
+    phi1 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
+    pst.pestpp_options = {}
+    pst.pestpp_options["ies_num_reals"] = 10
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = [0.9,1.0]
+    pst.pestpp_options['ies_subset_size'] = 10
+    #pst.pestpp_options["ies_debug_high_subset_phi"] =True
+    pst.control_data.noptmax = 1
+    pst.write(os.path.join(template_d,"pest_high_phi.pst"))
+    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               port=port)
+    phi2 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
+    diff = phi1 - phi2
+    assert diff.max().max() == 0.0
+
+    pst.pestpp_options = {}
+    pst.pestpp_options["ies_num_reals"] = 10
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = [0.9,1.0]
+    pst.pestpp_options['ies_subset_size'] = 10
+    pst.pestpp_options["ies_debug_high_upgrade_phi"] =True
+    pst.control_data.noptmax = 1
+    pst.write(os.path.join(template_d,"pest_high_phi.pst"))
+    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               port=port)
+    phi3 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
+    diff = phi3 - phi2
+    assert diff.max().max() == 0.0
+
+    pst.pestpp_options = {}
+    pst.pestpp_options["ies_num_reals"] = 10
+    pst.pestpp_options["ies_lambda_mults"] = [0.5,1.0]
+    pst.pestpp_options["lambda_scale_fac"] = [0.9,1.0]
+    pst.pestpp_options['ies_subset_size'] = 3
+    pst.pestpp_options["ies_debug_high_upgrade_phi"] = True
+    pst.pestpp_options["ies_debug_fail_subset"] = True
+    pst.pestpp_options["ies_debug_fail_remainder"] = True
+    pst.pestpp_options["ies_debug_bad_phi"] = True
+    pst.control_data.noptmax = 3
+    pst.write(os.path.join(template_d,"pest_high_phi.pst"))
+    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               port=port)
+    phi4 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
+    assert os.path.exists(os.path.join(test_d,"pest_high_phi.3.obs.csv"))
+
+    pst.pestpp_options = {}
+    pst.pestpp_options["ies_num_reals"] = 10
+    pst.pestpp_options["ies_lambda_mults"] = [0.5,1.0]
+    pst.pestpp_options["lambda_scale_fac"] = [0.9,1.0]
+    pst.pestpp_options['ies_subset_size'] = 3
+    pst.pestpp_options["ies_debug_high_subset_phi"] = True
+    pst.pestpp_options["ies_debug_fail_subset"] = True
+    pst.pestpp_options["ies_debug_fail_remainder"] = True
+    pst.pestpp_options["ies_debug_bad_phi"] = True
+    pst.control_data.noptmax = 3
+    pst.write(os.path.join(template_d,"pest_high_phi.pst"))
+    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               port=port)
+    phi5 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
+    assert os.path.exists(os.path.join(test_d,"pest_high_phi.3.obs.csv"))
+    
 
 if __name__ == "__main__":
     #tenpar_base_run_test()
@@ -479,3 +572,4 @@ if __name__ == "__main__":
     #freyberg_local_threads_test()
     #freyberg_aal_test()
     freyberg_combined_aal_test()
+    #tenpar_high_phi_test()

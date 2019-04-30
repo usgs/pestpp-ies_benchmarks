@@ -167,7 +167,7 @@ def tenpar_full_cov_test():
     par.loc[:,"parubnd"] = 1.0e+10
     par.loc[:,"parlbnd"] = -1.0e+10
     par.loc[pst.par_names[:2],"partrans"] = "none"
-
+    par.loc[:,"parchglim"] = "relative"
     x = np.zeros((pst.npar_adj,pst.npar_adj)) + 0.25
     for i in range(pst.npar_adj):
         x[i,i] = 1.0
@@ -568,6 +568,8 @@ def test_chenoliver():
     pst.pestpp_options["parcov_filename"] = "prior.cov"
     pst.pestpp_options["ies_num_reals"] = 100
     pst.control_data.noptmax = 0
+    par = pst.parameter_data
+    par.loc[:,"parchglim"] = "relative"
     pst.write(os.path.join(test_d,"pest.pst"))
     pyemu.helpers.run(exe_path+" pest.pst",cwd=test_d)
     
@@ -1462,19 +1464,19 @@ if __name__ == "__main__":
 
     #full list of tests
     # tenpar_subset_test()
-    #tenpar_full_cov_test()
+    tenpar_full_cov_test()
     # eval_freyberg_full_cov_reorder()
     # test_freyberg_full_cov_reorder_run()
     # eval_freyberg_full_cov()
     # tenpar_tight_tol_test()
-    # test_chenoliver()
+    #  test_chenoliver()
     #tenpar_narrow_range_test()
     # test_freyberg_ineq()
     # tenpar_fixed_test()
     # tenpar_fixed_test2()\
     # tenpar_subset_how_test()
     # tenpar_localizer_test1()
-    tenpar_localizer_test2()
+    # tenpar_localizer_test2()
     # tenpar_localizer_test3()
     # freyberg_localizer_eval1()
     # freyberg_localizer_eval2()
