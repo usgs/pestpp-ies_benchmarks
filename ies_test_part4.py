@@ -303,6 +303,103 @@ def freyberg_aal_test():
     pyemu.os_utils.start_slaves(template_d, exe_path, "pest_aal.pst", num_slaves=30, master_dir=test_d,
                                slave_root=model_d,port=port)
 
+
+def freyberg_combined_aal_test():
+    import flopy
+    model_d = "ies_freyberg"
+    test_d = os.path.join(model_d, "master_combined_aal_test")
+    template_d = os.path.join(model_d, "template")
+    m = flopy.modflow.Modflow.load("freyberg.nam",model_ws=template_d,load_only=[],check=False)
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    # print("loading pst")
+    pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
+
+    m = flopy.modflow.Modflow.load("freyberg.nam",model_ws=template_d,load_only=[],check=False)
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    # print("loading pst")
+
+
+    par = pst.parameter_data
+    par.loc[:,"partrans"] = "fixed"
+    par.loc[par.pargp=="hk","partrans"] = "log"
+
+    par_adj = par.loc[pst.adj_par_names,:].copy()
+    par_adj.loc[:,"i"] = par_adj.parnme.apply(lambda x: int(x.split('_')[1][1:]))
+    par_adj.loc[:,"j"] = par_adj.parnme.apply(lambda x: int(x.split('_')[2][1:]))
+    par_adj.loc[:,"x"] = par_adj.apply(lambda x: m.sr.xcentergrid[x.i,x.j],axis=1)
+    par_adj.loc[:,"y"] = par_adj.apply(lambda x: m.sr.ycentergrid[x.i,x.j],axis=1)
+
+    pst.observation_data.loc["flx_river_l_19700102","weight"] = 0.0
+    obs_nz = pst.observation_data.loc[pst.nnz_obs_names,:].copy()
+    obs_nz.loc[:,"i"] = obs_nz.obsnme.apply(lambda x: int(x[6:8]))
+    obs_nz.loc[:,"j"] = obs_nz.obsnme.apply(lambda x: int(x[9:11]))
+    obs_nz.loc[:,'x'] = obs_nz.apply(lambda x: m.sr.xcentergrid[x.i,x.j],axis=1)
+    obs_nz.loc[:,'y'] = obs_nz.apply(lambda x: m.sr.ycentergrid[x.i,x.j],axis=1)
+
+    dfs = []
+    v = pyemu.geostats.ExpVario(contribution=1.0, a=1000)
+    for name in pst.nnz_obs_names:
+        x,y = obs_nz.loc[name,['x','y']].values
+        #print(name,x,y)
+        p = par_adj.copy()
+        #p.loc[:,"dist"] = p.apply(lambda xx: np.sqrt((xx.x - x)**2 + (xx.y - y)**2),axis=1)
+        #print(p.dist.max(),p.dist.min())
+        cc = v.covariance_points(x,y,p.x,p.y)
+        #print(cc.min(),cc.max())
+        dfs.append(cc)
+
+    df = pd.concat(dfs,axis=1)
+    df.columns = pst.nnz_obs_names
+
+    mat = pyemu.Matrix.from_dataframe(df.T)
+    tol = 0.35
+
+    mat.x[mat.x<tol] = 0.0
+    mat.to_ascii(os.path.join(template_d,"localizer.mat"))
+    df_tol = mat.to_dataframe()
+    par_sum = df_tol.sum(axis=0)
+
+    zero_cond_pars = list(par_sum.loc[par_sum==0.0].index)
+    print(zero_cond_pars)
+
+    par = pst.parameter_data
+
+    pst.pestpp_options = {}
+    pst.pestpp_options["ies_num_reals"] = 100
+    pst.pestpp_options["ies_subset_size"] = 100
+    pst.pestpp_options["ies_num_threads"] = 20
+    pst.pestpp_options["ies_lambda_mults"] = [1.0]
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
+    #pst.pestpp_options["ies_include_base"] = False
+    #pst.pestpp_options["ies_par_en"] = "par_local.csv"
+    pst.pestpp_options["ies_use_approx"] = False
+    pst.pestpp_options["ies_use_prior_scaling"] = True
+    pst.pestpp_options["ies_localizer"] = "localizer.mat"
+    pst.pestpp_options["ies_localize_how"] = "par"
+    pst.pestpp_options["ies_verbose_level"] = 2
+    pst.pestpp_options["ies_save_lambda_en"] = True
+    pst.pestpp_options["ies_subset_how"] = "random"
+    pst.pestpp_options["ies_accept_phi_fac"] = 1000.0
+    pst.pestpp_options["overdue_giveup_fac"] = 10.0
+    pst.pestpp_options["ies_autoadaloc"] = True
+    pst.pestpp_options["ies_autoadaloc_sigma_dist"] = 1.0
+    pst.control_data.noptmax = 1
+    pst.write(os.path.join(template_d, "pest_aal.pst"))
+    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_aal.pst", num_slaves=30, master_dir=test_d,
+                               slave_root=model_d,port=port)
+
+    pr = pd.read_csv(os.path.join(test_d,"pest_aal.0.par.csv")).loc[:,zero_cond_pars]
+    pt = pd.read_csv(os.path.join(test_d,"pest_aal.{0}.par.csv".format(pst.control_data.noptmax))).loc[:,zero_cond_pars]
+
+    diff = pr - pt
+    print(diff.apply(np.abs).max().max())
+    assert diff.apply(np.abs).max().max() == 0.0
+    
+
+
+
 def freyberg_aal_invest():
     import flopy
     model_d = "ies_freyberg"
@@ -341,7 +438,7 @@ def freyberg_aal_invest():
                     continue
                 arr_cc[pdict[n][0],pdict[n][1]] = v
                 arr_jco[pdict[n][0], pdict[n][1]] = jco_obs[n]
-            fig = plt.figure(figsize=(10,10))
+            fig = plt.figure(figsize=(6,13))
 
             ax = plt.subplot(121,aspect="equal")
             ax2 = plt.subplot(122, aspect="equal")
@@ -350,12 +447,18 @@ def freyberg_aal_invest():
             arr_cc = arr_cc / arr_cc.max()
             arr_jco = arr_jco / arr_jco.max()
             c = ax.pcolormesh(m.sr.xcentergrid,m.sr.ycentergrid,arr_cc,alpha=0.5,vmin=0,vmax=1)
-            plt.colorbar(c,ax=ax)
+            #plt.colorbar(c,ax=ax)
             c2 = ax2.pcolormesh(m.sr.xcentergrid, m.sr.ycentergrid, arr_jco, alpha=0.5,vmin=0,vmax=1)
-            plt.colorbar(c2,ax=ax2)
+            #plt.colorbar(c2,ax=ax2,fraction=0.046, pad=0.04)
             ax.scatter([m.sr.xcentergrid[i,j]],[m.sr.ycentergrid[i,j]],marker='.',s=50)
             ax2.scatter([m.sr.xcentergrid[i, j]], [m.sr.ycentergrid[i, j]], marker='.', s=50)
-            ax.set_title(obs)
+            ax.set_title("{0}: estimated CC".format(obs))
+            ax2.set_title("{0}: normalized JCO row".format(obs))
+            for ax in [ax,ax2]:
+                ax.set_xticks([])
+                ax.set_yticks([])
+
+            plt.tight_layout()
             pdf.savefig()
             plt.close(fig)
 
@@ -373,4 +476,6 @@ if __name__ == "__main__":
     #temp()
     #tenpar_localize_how_test()
     #clues_longnames_test()
-    freyberg_local_threads_test()
+    #freyberg_local_threads_test()
+    #freyberg_aal_test()
+    freyberg_combined_aal_test()
