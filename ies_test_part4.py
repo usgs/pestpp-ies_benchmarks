@@ -285,6 +285,10 @@ def freyberg_aal_test():
 
     par = pst.parameter_data
 
+    par = pst.parameter_data
+    par.loc[:,"partrans"] = "fixed"
+    par.loc[par.pargp=="hk","partrans"] = "log"
+
     pst.pestpp_options = {}
     pst.pestpp_options["ies_num_reals"] = 100
     pst.pestpp_options["ies_subset_size"] = 100
@@ -420,47 +424,71 @@ def freyberg_aal_invest():
                                     slave_root=model_d, master_dir=test_d, port=port,verbose=True)
     jco = pyemu.Jco.from_binary(jco_file).to_dataframe()
 
-    test_d = os.path.join(model_d,"master_aal_test")
+    test_d = os.path.join(model_d,"master_combined_aal_test")
     m = flopy.modflow.Modflow.load("freyberg.nam", model_ws=template_d, load_only=[], check=False)
     tcc = pyemu.Matrix.from_ascii(os.path.join(test_d,"pest_aal.1.autoadaloc.tCC.mat")).to_dataframe()
     pnames = pd.DataFrame({"name":tcc.columns.values})
     pnames.loc[:,"i"] = pnames.name.apply(lambda x: int(x.split('_')[1][1:]))
     pnames.loc[:,"j"] = pnames.name.apply(lambda x: int(x.split('_')[2][1:]))
     pdict = {n:(i,j) for n,i,j in zip(pnames.name,pnames.i,pnames.j)}
+    
+    test_d = os.path.join(model_d,"master_aal_test")
+    tcc2 = pyemu.Matrix.from_ascii(os.path.join(test_d,"pest_aal.1.autoadaloc.tCC.mat")).to_dataframe()
+    pnames2 = pd.DataFrame({"name":tcc2.columns.values})
+    pnames2.loc[:,"i"] = pnames2.name.apply(lambda x: int(x.split('_')[1][1:]))
+    pnames2.loc[:,"j"] = pnames2.name.apply(lambda x: int(x.split('_')[2][1:]))
+    pdict2 = {n:(i,j) for n,i,j in zip(pnames2.name,pnames2.i,pnames2.j)}
+    
+
     from matplotlib.backends.backend_pdf import PdfPages
     with PdfPages(os.path.join(test_d,"compare_sens_cc.pdf")) as pdf:
         for obs in tcc.index:
-            if not obs.startswith("c00"):
-                continue
-            i = int(obs[6:8])
-            j = int(obs[9:11])
+            i,j = None,None
+            if obs.startswith("c00"):
+                #continue
+                i = int(obs[6:8])
+                j = int(obs[9:11])
             tcc_obs = tcc.loc[obs,:].apply(np.abs)
             jco_obs = jco.loc[obs,:].apply(np.abs)
             print(tcc_obs)
             arr_cc = np.zeros((m.nrow,m.ncol))
             arr_jco = np.zeros((m.nrow, m.ncol))
-            for n,v in zip(tcc_obs.index,tcc_obs.values):
+
+            tcc_obs2 = tcc2.loc[obs,:].apply(np.abs)
+            arr_cc2 = np.zeros((m.nrow,m.ncol))
+            
+            for n,v,v2 in zip(tcc_obs.index,tcc_obs.values,tcc_obs2.values):
                 if not "hk" in n:
                     continue
                 arr_cc[pdict[n][0],pdict[n][1]] = v
                 arr_jco[pdict[n][0], pdict[n][1]] = jco_obs[n]
-            fig = plt.figure(figsize=(6,13))
+                arr_cc2[pdict2[n][0],pdict2[n][1]] = v2
+            fig = plt.figure(figsize=(13,6))
 
-            ax = plt.subplot(121,aspect="equal")
-            ax2 = plt.subplot(122, aspect="equal")
-            arr_cc = np.ma.masked_where(arr_cc<1.0e-6,arr_cc)
-            arr_jco = np.ma.masked_where(arr_jco<1.0e-6, arr_jco)
+            ax = plt.subplot(131,aspect="equal")
+            ax2 = plt.subplot(132, aspect="equal")
+            ax3 = plt.subplot(133, aspect="equal")
+            
             arr_cc = arr_cc / arr_cc.max()
             arr_jco = arr_jco / arr_jco.max()
-            c = ax.pcolormesh(m.sr.xcentergrid,m.sr.ycentergrid,arr_cc,alpha=0.5,vmin=0,vmax=1)
+            arr_cc2 = arr_cc2 / arr_cc2.max()
+            arr_cc = np.ma.masked_where(arr_cc<1.0e-6,arr_cc)
+            arr_jco = np.ma.masked_where(arr_jco<1.0e-6, arr_jco)
+            c = ax.pcolormesh(m.sr.xcentergrid,m.sr.ycentergrid,arr_cc2,alpha=0.5,vmin=0,vmax=1)
             #plt.colorbar(c,ax=ax)
-            c2 = ax2.pcolormesh(m.sr.xcentergrid, m.sr.ycentergrid, arr_jco, alpha=0.5,vmin=0,vmax=1)
+            c1 = ax2.pcolormesh(m.sr.xcentergrid, m.sr.ycentergrid, arr_cc, alpha=0.5,vmin=0,vmax=1)
+            c2 = ax3.pcolormesh(m.sr.xcentergrid, m.sr.ycentergrid, arr_jco, alpha=0.5,vmin=0,vmax=1)
+            
             #plt.colorbar(c2,ax=ax2,fraction=0.046, pad=0.04)
-            ax.scatter([m.sr.xcentergrid[i,j]],[m.sr.ycentergrid[i,j]],marker='.',s=50)
-            ax2.scatter([m.sr.xcentergrid[i, j]], [m.sr.ycentergrid[i, j]], marker='.', s=50)
-            ax.set_title("{0}: estimated CC".format(obs))
-            ax2.set_title("{0}: normalized JCO row".format(obs))
-            for ax in [ax,ax2]:
+            if i is not None:
+                ax.scatter([m.sr.xcentergrid[i,j]],[m.sr.ycentergrid[i,j]],marker='.',s=50)
+                ax2.scatter([m.sr.xcentergrid[i, j]], [m.sr.ycentergrid[i, j]], marker='.', s=50)
+                ax3.scatter([m.sr.xcentergrid[i, j]], [m.sr.ycentergrid[i, j]], marker='.', s=50)
+            
+            ax.set_title("A.) estimated CC".format(obs),fontsize=12,loc="left")
+            ax2.set_title("B.) distance loc + estimated CC".format(obs),fontsize=12,loc="left")
+            ax3.set_title("C.) normalized JCO row".format(obs),fontsize=12,loc="left")
+            for ax in [ax,ax2,ax3]:
                 ax.set_xticks([])
                 ax.set_yticks([])
 
@@ -571,5 +599,6 @@ if __name__ == "__main__":
     #clues_longnames_test()
     #freyberg_local_threads_test()
     #freyberg_aal_test()
-    freyberg_combined_aal_test()
+    # freyberg_combined_aal_test()
+    freyberg_aal_invest()
     #tenpar_high_phi_test()
