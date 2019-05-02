@@ -3,6 +3,7 @@ import os
 import shutil
 import platform
 import numpy as np
+import scipy.linalg
 import pandas as pd
 import platform
 import matplotlib.pyplot as plt
@@ -456,6 +457,47 @@ def tenpar_high_phi_test():
     assert os.path.exists(os.path.join(test_d,"pest_high_phi.3.obs.csv"))
     
 
+def freyberg_svd_draws_invest():
+    import flopy
+    model_d = "ies_freyberg"
+    test_d = os.path.join(model_d, "master_svd_draws_test")
+    template_d = os.path.join(model_d, "template")
+    m = flopy.modflow.Modflow.load("freyberg.nam",model_ws=template_d,load_only=[],check=False)
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    # print("loading pst")
+    pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
+    par = pst.parameter_data
+    
+
+    print(par.pargp.value_counts().sort_values())
+    pnames = par.loc[par.pargp=="hk","parnme"].tolist()
+    par.loc[par.pargp!="hk","partrans"] = "fixed"
+    cov = pyemu.Cov.from_binary(os.path.join(template_d,"prior.jcb"))
+    pcov = cov.get(pnames,pnames)
+    ev, ew = np.linalg.eigh(pcov.as_2d)
+    u,s,v = np.linalg.svd(pcov.as_2d,full_matrices=True)
+    print(np.sqrt(s))
+    print(ev)
+
+    s = np.diag(s)
+    eproj = np.dot(ew, np.sqrt(np.diag(ev)))
+    sproj = np.dot(u,s)
+    #print(eproj.shape,sproj.shape,s.shape)
+    diff = u - ew
+    
+    #pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst=pst,cov=cov,num_reals=10000)
+    #pe = pe.loc[:,pnames]
+    #pmat = pe.as_pyemu_matrix()
+    #pmat =pmat.get(col_names=pnames)
+    #ecov = pmat.T * pmat
+    #print(ecov.shape)
+
+
+
+    
+
+
 if __name__ == "__main__":
     #tenpar_base_run_test()
     #tenpar_xsec_autoadaloc_test()
@@ -468,4 +510,5 @@ if __name__ == "__main__":
     #clues_longnames_test()
     #freyberg_local_threads_test()
     #freyberg_aal_test()
-    tenpar_high_phi_test()
+    #tenpar_high_phi_test()
+    freyberg_svd_draws_invest()
