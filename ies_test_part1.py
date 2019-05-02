@@ -182,7 +182,7 @@ def tenpar_full_cov_test():
     pst.pestpp_options["ies_num_reals"] = num_reals
     pst.pestpp_options["parcov_filename"] = "prior.cov"
     pst.pestpp_options["ies_verbose_level"] = 1
-    pst.pestpp_options["ies_num_threads"] = 10
+    pst.pestpp_options["ies_num_threads"] = 2
     pst.write(pst_name)
     pyemu.helpers.run(exe_path+" pest.pst",cwd=test_d)
 
@@ -378,7 +378,7 @@ def test_freyberg_full_cov_reorder():
     #diagonal cov
     #pst.pestpp_options["parcov_filename"] = "prior.jcb"
     pst.pestpp_options["ies_num_reals"] = num_reals
-    pst.pestpp_options["ies_num_threads"] = 10
+    pst.pestpp_options["ies_num_threads"] = 2
     pst.pestpp_options["ies_include_base"] = "false"
 
     pst.write(os.path.join(test_d, "pest.pst"))
