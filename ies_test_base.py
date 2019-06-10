@@ -149,7 +149,7 @@ def setup_suite_dir(model_d):
     m_d = os.path.join(model_d,"master_sweep1")
     if os.path.exists(m_d):
         shutil.rmtree(m_d)
-    pyemu.os_utils.start_slaves(new_d, exe_path.replace("-ies","-swp"), "pest.pst", 5, master_dir=m_d,
+    pyemu.os_utils.start_workers(new_d, exe_path.replace("-ies","-swp"), "pest.pst", 5, master_dir=m_d,
                            slave_root=model_d,local=local,port=port)
     #shutil.copytree(new_d,m_d)
     #pyemu.os_utils.run("{0} pest.pst".format(exe_path.replace("-ies","-swp")),cwd=m_d)
@@ -231,7 +231,7 @@ def run_suite(model_d,silent_master=False):
                 except:
                     print("error removing existing test_d: {0}".format(test_d))
                     continue
-            pyemu.os_utils.start_slaves(template_d, exe_path, "pest.pst", num_slaves=15,
+            pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=15,
                                        master_dir=test_d, verbose=True, slave_root=model_d,
                                        silent_master=silent_master,port=port)
         except Exception as e:

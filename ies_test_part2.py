@@ -148,7 +148,7 @@ def setup_suite_dir(model_d):
     m_d = os.path.join(model_d,"master_sweep1")
     if os.path.exists(m_d):
         shutil.rmtree(m_d)
-    pyemu.os_utils.start_slaves(new_d, exe_path.replace("-ies","-swp"), "pest.pst", 5, master_dir=m_d,
+    pyemu.os_utils.start_workers(new_d, exe_path.replace("-ies","-swp"), "pest.pst", 5, master_dir=m_d,
                            slave_root=model_d,local=local,port=port)
     #shutil.copytree(new_d,m_d)
     #pyemu.os_utils.run("{0} pest.pst".format(exe_path.replace("-ies","-swp")),cwd=m_d)
@@ -221,7 +221,7 @@ def freyberg_localizer_test1():
     print("writing pst")
     pst.write(os.path.join(template_d, "pest_base.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_base.pst", num_slaves=11, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_slaves=11, master_dir=test_d,
                                slave_root=model_d,port=port)
     par_df = pd.read_csv(os.path.join(test_d,"pest_base.{0}.par.csv".format(pst.control_data.noptmax)),index_col=0)
     #par_df.index = pe.index
@@ -287,7 +287,7 @@ def freyberg_localizer_test2():
     print("writing pst")
     pst.write(os.path.join(template_d, "pest_local.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_local.pst", num_slaves=11, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=11, master_dir=test_d,
                                slave_root=model_d, port=port)
     par_df1 = pd.read_csv(os.path.join(test_d, "pest_local.{0}.par.csv".format(pst.control_data.noptmax)), index_col=0)
     #par_df1.index = pe.index
@@ -297,7 +297,7 @@ def freyberg_localizer_test2():
     pst.pestpp_options.pop("ies_localizer")
     pst.write(os.path.join(template_d, "pest_base.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_base.pst", num_slaves=11, master_dir=test_d+"_base",
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_slaves=11, master_dir=test_d+"_base",
                                slave_root=model_d, port=port)
     par_df2 = pd.read_csv(os.path.join(test_d+"_base", "pest_base.{0}.par.csv".format(pst.control_data.noptmax)), index_col=0)
     #par_df2.index = pe.index
@@ -348,7 +348,7 @@ def freyberg_localizer_test3():
     print("writing pst")
     pst.write(os.path.join(template_d, "pest_local.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_local.pst", num_slaves=15, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=15, master_dir=test_d,
                                slave_root=model_d, port=port)
     par_df1 = pd.read_csv(os.path.join(test_d, "pest_local.{0}.par.csv".format(pst.control_data.noptmax)), index_col=0)
     #par_df1.index = pe.index
@@ -358,7 +358,7 @@ def freyberg_localizer_test3():
     pst.pestpp_options.pop("ies_localizer")
     pst.write(os.path.join(template_d, "pest_base.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_base.pst", num_slaves=15, master_dir=test_d+"_base",
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_slaves=15, master_dir=test_d+"_base",
                                slave_root=model_d, port=port)
     par_df2 = pd.read_csv(os.path.join(test_d+"_base", "pest_base.{0}.par.csv".format(pst.control_data.noptmax)), index_col=0)
     #par_df2.index = pe.index
@@ -442,14 +442,14 @@ def csv_tests():
     pst.control_data.noptmax = 3
     pst_name = os.path.join(template_d, "pest_local.pst")
     pst.write(pst_name)
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_local.pst", num_slaves=11,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=11,
                                master_dir=test_d, verbose=True, slave_root=model_d,
                                port=4019)
     # phi_df1 = pd.read_csv(os.path.join(test_d, "pest_local.phi.actual.csv"))
     #
     # pst.pestpp_options.pop("ies_localizer")
     # pst.write(pst_name)
-    # pyemu.os_utils.start_slaves(template_d, exe_path, "pest_local.pst", num_slaves=11,
+    # pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=11,
     #                            master_dir=test_d, verbose=True, slave_root=model_d,
     #                            port=port)
     # phi_df2 = pd.read_csv(os.path.join(test_d, "pest_local.phi.actual.csv"))
@@ -480,7 +480,7 @@ def tenpar_restart_binary_test():
     pst.pestpp_options["ies_include_base"] = False
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_restart.pst"))
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
                                 slave_root=model_d, master_dir=test_d, port=port)
     # pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
     for f in ["pest_restart.0.par.jcb","pest_restart.base.obs.jcb","pest_restart.0.obs.jcb"]:
@@ -500,7 +500,7 @@ def tenpar_restart_binary_test():
     pst.pestpp_options["ies_obs_en"] = "pest_restart.base.obs.jcb"
     pst.pestpp_options["ies_restart_obs_en"] = "pest_restart.0.obs.jcb"
     pst.write(os.path.join(template_d, "pest_restart_2.pst"))
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart_2.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart_2.pst", num_slaves=10,
                                 slave_root=model_d, master_dir=test_d+"_2", port=port)
     pe1 = pyemu.ParameterEnsemble.from_binary(pst, os.path.join(test_d+"_2", "pest_restart_2.0.par.jcb"))
     oe1 = pyemu.ObservationEnsemble.from_binary(pst, os.path.join(test_d+"_2", "pest_restart.0.obs.jcb"))
@@ -535,7 +535,7 @@ def tenpar_restart_binary_test():
     # pst.pestpp_options["ies_obs_en"] = "base.csv"
     # pst.control_data.noptmax = 3
     # pst.write(os.path.join(template_d, "pest_restart.pst"))
-    # pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    # pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
     #                             slave_root=model_d, master_dir=test_d, port=port)
     # assert os.path.exists(os.path.join(test_d, "pest_restart.3.par.csv"))
 
@@ -552,7 +552,7 @@ def tenpar_restart_test():
     pst.pestpp_options = {"ies_num_reals":num_reals}
     pst.control_data.noptmax = -1
     pst.write(os.path.join(template_d,"pest_restart.pst"))
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
                                 slave_root=model_d, master_dir=test_d, port=port)
     #pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
 
@@ -578,7 +578,7 @@ def tenpar_restart_test():
     pst.pestpp_options["ies_obs_en"] = "base.csv"
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d,"pest_restart.pst"))
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
                                 slave_root=model_d, master_dir=test_d, port=port)
     assert os.path.exists(os.path.join(test_d,"pest_restart.{0}.par.csv".format(pst.control_data.noptmax))),\
         os.listdir(test_d)
@@ -610,7 +610,7 @@ def tenpar_par_restart_test():
     pst.pestpp_options["ies_save_lambda_en"] = True
     pst.control_data.noptmax = 3
     pst.write(os.path.join(template_d,"pest_restart.pst"))
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
                                 slave_root=model_d, master_dir=test_d, port=port)
     #pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
 
@@ -642,7 +642,7 @@ def tenpar_par_restart_test():
     test_d = os.path.join(model_d, "master_easy_restart_withpar")
     if os.path.exists(test_d):
         shutil.rmtree(test_d)
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
                                 slave_root=model_d, master_dir=test_d, port=port)
     assert os.path.exists(os.path.join(test_d,"pest_restart.{0}.par.csv".format(pst.control_data.noptmax))),\
         os.listdir(test_d)
@@ -658,7 +658,7 @@ def tenpar_par_restart_test():
     test_d = os.path.join(model_d, "master_easy_restart_nopar")
     if os.path.exists(test_d):
         shutil.rmtree(test_d)
-    pyemu.os_utils.start_slaves(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
                                 slave_root=model_d, master_dir=test_d, port=port)
     phi_df2 = pd.read_csv(os.path.join(test_d, "pest_restart.phi.actual.csv"),index_col=0)
     diff = (phi_df1 - phi_df2).apply(np.abs)
