@@ -170,7 +170,7 @@ def setup_suite_dir(model_d):
     # shutil.copytree(new_d, pyemu_d)
     # bdir = os.getcwd()
     # os.chdir(pyemu_d)
-    # ies = pyemu.EnsembleSmoother("pest.pst", num_slaves=10, verbose="ies.log", slave_dir=os.path.join("..", "template"))
+    # ies = pyemu.EnsembleSmoother("pest.pst", num_workers=10, verbose="ies.log", slave_dir=os.path.join("..", "template"))
     # ies.initialize(parensemble="par.csv", obsensemble="obs.csv")
     # for i in range(pst.control_data.noptmax):
     #     ies.update()
@@ -231,7 +231,7 @@ def run_suite(model_d,silent_master=False):
                 except:
                     print("error removing existing test_d: {0}".format(test_d))
                     continue
-            pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=15,
+            pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=15,
                                        master_dir=test_d, verbose=True, worker_root=model_d,
                                        silent_master=silent_master,port=port)
         except Exception as e:

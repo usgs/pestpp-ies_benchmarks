@@ -231,7 +231,7 @@ def tenpar_subset_test():
     pst.pestpp_options["ies_accept_phi_fac"] = 100.0
     pst.pestpp_options["ies_subset_size"] = 21
     pst.write(os.path.join(template_d, "pest.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=15,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=15,
                                worker_root=model_d, master_dir=test_d,port=port)
     df_base = pd.read_csv(os.path.join(test_d, "pest.phi.meas.csv"),index_col=0)
 
@@ -242,7 +242,7 @@ def tenpar_subset_test():
     pst.pestpp_options["ies_accept_phi_fac"] = 100.0
 
     pst.write(os.path.join(template_d, "pest.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=15,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=15,
                                worker_root=model_d, master_dir=test_d,port=port)
     df_sub = pd.read_csv(os.path.join(test_d, "pest.phi.meas.csv"),index_col=0)
     diff = (df_sub - df_base).apply(np.abs)
@@ -281,7 +281,7 @@ def test_freyberg_full_cov():
     pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals, use_homegrown=True)
     pe.to_csv(os.path.join(test_d, "pyemu_pe.csv"))
 
-    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=10,
+    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
     #                            worker_root=model_d, master_dir=test_d)
     # pyemu.helpers.run(exe_path + " pest.pst", cwd=test_d)
     # print("loading df")
@@ -322,7 +322,7 @@ def test_freyberg_full_cov():
     pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals,use_homegrown=True)
     pe.to_csv(os.path.join(test_d,"pyemu_pe.csv"))
 
-    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=10,
+    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
     #                            worker_root=model_d, master_dir=test_d)
     pyemu.helpers.run(exe_path+" pest.pst",cwd=test_d)
     df = pd.read_csv(os.path.join(test_d, "pest.0.par.csv"), index_col=0).apply(np.log10)
@@ -388,7 +388,7 @@ def test_freyberg_full_cov_reorder():
     pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals, use_homegrown=True)
     pe.to_csv(os.path.join(test_d, "pyemu_pe.csv"))
 
-    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=10,
+    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
     #                            worker_root=model_d, master_dir=test_d)
     # pyemu.helpers.run(exe_path + " pest.pst", cwd=test_d)
     # print("loading df")
@@ -431,7 +431,7 @@ def test_freyberg_full_cov_reorder():
     pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals,use_homegrown=True)
     pe.to_csv(os.path.join(test_d,"pyemu_pe.csv"))
 
-    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=10,
+    # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
     #                            worker_root=model_d, master_dir=test_d)
     pyemu.helpers.run(exe_path+" pest.pst",cwd=test_d)
     df = pd.read_csv(os.path.join(test_d, "pest.0.par.csv"), index_col=0).apply(np.log10)
@@ -502,7 +502,7 @@ def test_freyberg_full_cov_reorder_run():
     #pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals, use_homegrown=True)
     #pe.to_csv(os.path.join(test_d, "pyemu_pe.csv"))
 
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=25,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=25,
                                 worker_root=model_d, master_dir=test_d,port=port)
     
 
@@ -546,7 +546,7 @@ def eval_synth():
     print("writing pst")
     pst.write(os.path.join(template_d,"pest.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_slaves=15,
+    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_workers=15,
         master_dir=test_d,worker_root=model_d,port=port)
 
 def test_chenoliver():
@@ -598,7 +598,7 @@ def test_chenoliver():
     pst.write(os.path.join(template_d,"pest.pst"))
     
 
-    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_slaves=20,
+    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_workers=20,
         master_dir=test_d,worker_root=model_d,port=port,silent_master=silent_master)
     df_full_obs = pd.read_csv(os.path.join(test_d,"pest.{0}.obs.csv".format(noptmax)),index_col=0)
     df_full_par = pd.read_csv(os.path.join(test_d,"pest.{0}.par.csv".format(noptmax)),index_col=0)
@@ -614,7 +614,7 @@ def test_chenoliver():
     pst.control_data.noptmax = noptmax
     pst.write(os.path.join(template_d,"pest.pst"))
 
-    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_slaves=20,
+    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_workers=20,
         master_dir=test_d,worker_root=model_d,port=port,silent_master=silent_master)
     df_approx_obs = pd.read_csv(os.path.join(test_d,"pest.{0}.obs.csv".format(noptmax)),index_col=0)
     df_approx_par = pd.read_csv(os.path.join(test_d,"pest.{0}.par.csv".format(noptmax)),index_col=0)
@@ -652,7 +652,7 @@ def test_chenoliver():
     pst.control_data.noptmax = noptmax
     pst.write(os.path.join(template_d,"pest.pst"))
 
-    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_slaves=25,
+    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_workers=25,
         master_dir=test_d,worker_root=model_d,port=port,silent_master=silent_master)
     df_full_obs = pd.read_csv(os.path.join(test_d,"pest.{0}.obs.csv".format(noptmax)),index_col=0)
     df_full_par = pd.read_csv(os.path.join(test_d,"pest.{0}.par.csv".format(noptmax)),index_col=0)
@@ -668,7 +668,7 @@ def test_chenoliver():
     pst.control_data.noptmax = noptmax
     pst.write(os.path.join(template_d,"pest.pst"))
 
-    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_slaves=25,
+    pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",num_workers=25,
         master_dir=test_d,worker_root=model_d,port=port,silent_master=silent_master)
     df_approx_obs = pd.read_csv(os.path.join(test_d,"pest.{0}.obs.csv".format(noptmax)),index_col=0)
     df_approx_par = pd.read_csv(os.path.join(test_d,"pest.{0}.par.csv".format(noptmax)),index_col=0)
@@ -717,7 +717,7 @@ def eval_kirishima():
     print("writing pst")
     pst.write(os.path.join(template_d, "pest.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_slaves=15, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=15, master_dir=test_d,
                                worker_root=model_d,port=port)
 
 def test_freyberg_ineq():
@@ -740,7 +740,7 @@ def test_freyberg_ineq():
     print("writing pst")
     pst.write(os.path.join(template_d, "pest_ineq.pst"))
     print("starting slaves")
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_ineq.pst", num_slaves=10, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_ineq.pst", num_workers=10, master_dir=test_d,
                                worker_root=model_d,port=port)
 
     obs_csvs = [f for f in os.listdir(test_d) if "obs" in f and f.endswith(".csv")]
@@ -787,7 +787,7 @@ def tenpar_fixed_test2():
     pst.write(os.path.join(template_d, "pest_fixed.pst"))
 
     # pyemu.helpers.run("{0} pest.pst".format(exe_path), cwd=test_d)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_slaves=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_workers=5, master_dir=test_d,
                                 worker_root=model_d, port=port)
     df = pd.read_csv(os.path.join(test_d,"pest_fixed.{0}.par.csv".format(pst.control_data.noptmax)),index_col=0)
     df.columns = df.columns.map(str.lower)
@@ -849,14 +849,14 @@ def tenpar_fixed_test():
     pst.pestpp_options["ies_include_base"] = False
     pst.write(os.path.join(template_d, "pest_fixed.pst"))
     #pyemu.helpers.run("{0} pest.pst".format(exe_path), cwd=test_d)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_slaves=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
     compare()
     pe.to_binary(os.path.join(template_d,"par_fixed.jcb"))
     pst.pestpp_options["ies_par_en"] = "par_fixed.jcb"
     pst.write(os.path.join(template_d, "pest.pst"))
     #pyemu.helpers.run("{0} pest.pst".format(exe_path), cwd=test_d)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_slaves=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
     compare()
 
@@ -864,7 +864,7 @@ def tenpar_fixed_test():
     pst.pestpp_options["ies_save_binary"] = 'true'
     pst.write(os.path.join(template_d, "pest_fixed.pst"))
     #pyemu.helpers.run("{0} pest.pst".format(exe_path), cwd=test_d)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_slaves=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_fixed.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
     pe1 = pyemu.ParameterEnsemble.from_binary(pst=pst,filename=os.path.join(test_d,"pest_fixed.0.par.jcb"))
     #pe1.index = pe.index
@@ -997,7 +997,7 @@ def tenpar_weight_pareto():
     #obs.loc["h01_06","obsval"] = 6.0
 
     pst.write(os.path.join(template_d,"pest_pareto.pst"))
-    pyemu.os_utils.start_workers(template_d,exe_path,"pest_pareto.pst",num_slaves=40,
+    pyemu.os_utils.start_workers(template_d,exe_path,"pest_pareto.pst",num_workers=40,
                                 worker_root=model_d,master_dir=test_d,port=port)
     obs = pst.observation_data
     df_init = pd.read_csv(os.path.join(test_d,"pest_pareto.0.obs.csv".format(pst.control_data.noptmax)))
@@ -1107,14 +1107,14 @@ def tenpar_localizer_test1():
     #pst.pestpp_options["ies_verbose_level"] = 3
     pst_name = os.path.join(template_d,"pest_local.pst")
     pst.write(pst_name)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=10,
                                    master_dir=test_d, verbose=True, worker_root=model_d,
                                    port=port)
     phi_df1 = pd.read_csv(os.path.join(test_d,"pest_local.phi.meas.csv"))
 
     pst.pestpp_options.pop("ies_localizer")
     pst.write(os.path.join(template_d,"pest_base.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=10,
                                    master_dir=test_d+"_base", verbose=True, worker_root=model_d,
                                    port=port)
     phi_df2 = pd.read_csv(os.path.join(test_d+"_base","pest_base.phi.meas.csv"))
@@ -1180,7 +1180,7 @@ def tenpar_localizer_test2():
     pst_name = os.path.join(template_d,"pest_local.pst")
     pst.write(pst_name)
 
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=11,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=11,
                                        master_dir=test_d, verbose=True, worker_root=model_d,
                                        port=port)
     phi_df1 = pd.read_csv(os.path.join(test_d,"pest_local.phi.actual.csv"))
@@ -1192,7 +1192,7 @@ def tenpar_localizer_test2():
 
     pst.parameter_data.loc[use_pars,"partrans"] = "log"
     pst.write(os.path.join(template_d,"pest_base.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_slaves=11,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=11,
                                    master_dir=test_d+"_base", verbose=True, worker_root=model_d,
                                    port=port)
     phi_df2 = pd.read_csv(os.path.join(test_d+"_base","pest_base.phi.actual.csv"))
@@ -1221,7 +1221,7 @@ def tenpar_localizer_test2():
     # for i in range(100):
     #     t = test_d + "_temp"
     #
-    #     pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=11,
+    #     pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=11,
     #                                    master_dir=t, verbose=True, worker_root=model_d,
     #                                    port=port)
     #     phi_df1 = pd.read_csv(os.path.join(t,"pest_local.phi.actual.csv"))
@@ -1307,7 +1307,7 @@ def tenpar_subset_how_test():
     pst.pestpp_options = {"ies_num_reals":num_reals}
     pst.control_data.noptmax = -1
     pst.write(os.path.join(template_d,"pest_restart.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_workers=10,
                                 worker_root=model_d, master_dir=test_d, port=port)
     pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
     pst.pestpp_options["ies_par_en"] = "pest_restart.0.par.csv"
@@ -1413,7 +1413,7 @@ def tenpar_localizer_test3():
     # pst.pestpp_options["ies_verbose_level"] = 3
     pst_name = os.path.join(template_d, "pest_local.pst")
     pst.write(pst_name)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=11,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=11,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi_df1 = pd.read_csv(os.path.join(test_d, "pest_local.phi.composite.csv"))
@@ -1424,7 +1424,7 @@ def tenpar_localizer_test3():
     pst.parameter_data.loc[:, "partrans"] = "fixed"
     pst.parameter_data.loc[use_pars, "partrans"] = "log"
     pst.write(os.path.join(template_d, "pest_base.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_slaves=11,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=11,
                                master_dir=test_d + "_base", verbose=True, worker_root=model_d,
                                port=port)
     phi_df2 = pd.read_csv(os.path.join(test_d + "_base", "pest_base.phi.composite.csv"))

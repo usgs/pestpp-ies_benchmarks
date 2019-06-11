@@ -248,7 +248,7 @@ def freyberg_dist_local_test():
     pst.pestpp_options["overdue_giveup_fac"] = 1000.0
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d, "pest_local.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=20, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=20, master_dir=test_d,
                                worker_root=model_d,port=port)
 
     par_df_org = pd.read_csv(os.path.join(test_d, "pest_local.0.par.csv"), index_col=0)
@@ -362,7 +362,7 @@ def freyberg_dist_local_invest():
     #pst.pestpp_options["ies_initial_lambda"] = 0.1
     pst.control_data.noptmax = 20
     pst.write(os.path.join(template_d, "pest_local.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=20, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=20, master_dir=test_d,
                                 worker_root=model_d, port=port)
 
     par_df_org = pd.read_csv(os.path.join(test_d, "pest_local.0.par.csv"), index_col=0)
@@ -418,7 +418,7 @@ def freyberg_dist_local_invest():
 
     pst.pestpp_options.pop("ies_localizer")
     pst.write(os.path.join(template_d, "pest_base.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_slaves=20, master_dir=test_d+"_base",
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=20, master_dir=test_d+"_base",
                                 worker_root=model_d, port=port)
 
     phi_loc = pd.read_csv(os.path.join(test_d,"pest_local.phi.meas.csv"),index_col=0)
@@ -476,14 +476,14 @@ def tenpar_localize_how_test():
     # pst.pestpp_options["ies_verbose_level"] = 3
     pst_name = os.path.join(template_d, "pest_local_o.pst")
     pst.write(pst_name)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_o.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_o.pst", num_workers=10,
                                 master_dir=test_d+"_o", verbose=True, worker_root=model_d,
                                 port=port)
     phi_df1 = pd.read_csv(os.path.join(test_d+"_o", "pest_local_o.phi.meas.csv"))
 
     pst.pestpp_options["ies_localize_how"] = "p"
     pst.write(os.path.join(template_d, "pest_local_p.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_workers=10,
                                 master_dir=test_d + "_p", verbose=True, worker_root=model_d,
                                 port=port)
     phi_df2 = pd.read_csv(os.path.join(test_d + "_p", "pest_local_p.phi.meas.csv"))
@@ -505,7 +505,7 @@ def tenpar_localize_how_test():
     pst.pestpp_options["ies_localize_how"] = "p"
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d, "pest_local_p.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_workers=10,
                                 master_dir=test_d + "_p", verbose=True, worker_root=model_d,
                                 port=port)
     mat = pyemu.Matrix.from_names(pst.nnz_obs_names,pst.adj_par_names).to_dataframe()
@@ -516,13 +516,13 @@ def tenpar_localize_how_test():
     mat.to_ascii(os.path.join(template_d, "localizer.mat"))
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d, "pest_local_p.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_workers=10,
                                 master_dir=test_d + "_p", verbose=True, worker_root=model_d,
                                 port=port)
     pst.pestpp_options["ies_localize_how"] = "o"
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d, "pest_local_p.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local_p.pst", num_workers=10,
                                 master_dir=test_d + "_p", verbose=True, worker_root=model_d,
                                 port=port)
 
@@ -613,7 +613,7 @@ def freyberg_local_threads_test():
     pst.control_data.noptmax = 3
     pst.write(os.path.join(template_d, "pest_local.pst"))
     d = test_d+"_base"
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=20, master_dir=d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=20, master_dir=d,
                                worker_root=model_d,port=port)
 
     def get_results(dd):
@@ -633,7 +633,7 @@ def freyberg_local_threads_test():
     pst.write(os.path.join(template_d, "pest_local.pst"))
     d = test_d + "_1thread"
 
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=20, master_dir=d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=20, master_dir=d,
                                 worker_root=model_d, port=port)
     # phi,dfs = get_results(d)
     # phi_diff = (base_phi - phi).apply(np.abs)
@@ -646,7 +646,7 @@ def freyberg_local_threads_test():
     pst.pestpp_options["ies_num_threads"] = 10
     pst.write(os.path.join(template_d, "pest_local.pst"))
     d = test_d + "_10thread"
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_slaves=20, master_dir=d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_local.pst", num_workers=20, master_dir=d,
                                 worker_root=model_d, port=port)
     
     phi_1thread, dfs_1thread = get_results(test_d+"_1thread")
@@ -695,7 +695,7 @@ def tenpar_tied_test():
     # pst.pestpp_options["ies_verbose_level"] = 3
     pst_name = os.path.join(template_d, "pest_tied.pst")
     pst.write(pst_name)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_tied.pst", num_slaves=5,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_tied.pst", num_workers=5,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     
@@ -738,7 +738,7 @@ def tenpar_by_vars_test():
     # pst.pestpp_options["ies_verbose_level"] = 3
     pst_name = os.path.join(template_d, "pest_vars.pst")
     pst.write(pst_name)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     
@@ -746,7 +746,7 @@ def tenpar_by_vars_test():
     
     pst.pestpp_options["ies_csv_by_reals"] = False
     pst.write(pst_name)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     
@@ -761,7 +761,7 @@ def tenpar_by_vars_test():
     pst.pestpp_options['ies_par_en'] = "restart_by_vars.par.csv"
     pst.pestpp_options['ies_obs_en'] = "restart_by_vars.obs.csv"
     pst.write(pst_name)
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     pe2 = pd.read_csv(os.path.join(test_d, "pest_vars.2.par.csv"), index_col=0).T
@@ -788,7 +788,7 @@ def tenpar_xsec_autoadaloc_test():
     pst.pestpp_options["ies_num_reals"] = 50
     pst.control_data.noptmax = -1
     pst.write(os.path.join(template_d,"pest_aal.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_workers=10,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     pst.pestpp_options["ies_par_en"] = "pest_aal.0.par.csv"
@@ -830,14 +830,14 @@ def tenpar_xsec_autoadaloc_test():
         mat = pyemu.Matrix.from_ascii(os.path.join(test_d,"pest_aal_restart.1.autoadaloc.tCC.mat"))
 
     pst.write(os.path.join(template_d, "pest_aal_restart.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     compare(case="single thread")
 
     pst.pestpp_options["ies_num_threads"] = 10
     pst.write(os.path.join(template_d, "pest_aal_restart.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     compare(case="10 thread")
@@ -846,7 +846,7 @@ def tenpar_xsec_autoadaloc_test():
     pst.pestpp_options["ies_debug_fail_remainder"] = True
     pst.pestpp_options["ies_debug_bad_phi"] = True
     pst.write(os.path.join(template_d, "pest_aal_restart.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
 

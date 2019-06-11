@@ -103,7 +103,7 @@ def tenpar_xsec_aal_sigma_dist_test():
     pst.pestpp_options["ies_verbose_level"] = 2
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal_sigma_dist.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_sigma_dist.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_sigma_dist.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     
@@ -169,7 +169,7 @@ def tenpar_xsec_aal_invest():
     pst.pestpp_options["ies_verbose_level"] = 3
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=30,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_workers=30,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
 
@@ -232,7 +232,7 @@ def tenpar_xsec_combined_autoadaloc_test():
     pst.pestpp_options["ies_num_reals"] = 50
     pst.control_data.noptmax = -1
     pst.write(os.path.join(template_d,"pest_aal.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_workers=10,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
 
@@ -262,7 +262,7 @@ def tenpar_xsec_combined_autoadaloc_test():
 
 
     pst.write(os.path.join(template_d, "pest_aal_restart.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     df = pyemu.Matrix.from_ascii(os.path.join(test_d,"pest_aal_restart.1.autoadaloc.tCC.mat")).to_dataframe()
@@ -311,7 +311,7 @@ def freyberg_aal_test():
     pst.pestpp_options["ies_autoadaloc_sigma_dist"] = 1.0
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=30, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_workers=30, master_dir=test_d,
                                worker_root=model_d,port=port)
 
 
@@ -398,7 +398,7 @@ def freyberg_combined_aal_test():
     pst.pestpp_options["ies_autoadaloc_sigma_dist"] = 1.0
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=30, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_workers=30, master_dir=test_d,
                                worker_root=model_d,port=port)
 
     pr = pd.read_csv(os.path.join(test_d,"pest_aal.0.par.csv")).loc[:,zero_cond_pars]
@@ -519,7 +519,7 @@ def tenpar_high_phi_test():
     pst.pestpp_options["ies_debug_high_subset_phi"] =True
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_workers=10,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi1 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
@@ -531,7 +531,7 @@ def tenpar_high_phi_test():
     #pst.pestpp_options["ies_debug_high_subset_phi"] =True
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_workers=10,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi2 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
@@ -546,7 +546,7 @@ def tenpar_high_phi_test():
     pst.pestpp_options["ies_debug_high_upgrade_phi"] =True
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_workers=10,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi3 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
@@ -564,7 +564,7 @@ def tenpar_high_phi_test():
     pst.pestpp_options["ies_debug_bad_phi"] = True
     pst.control_data.noptmax = 3
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_workers=10,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi4 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
@@ -581,7 +581,7 @@ def tenpar_high_phi_test():
     pst.pestpp_options["ies_debug_bad_phi"] = True
     pst.control_data.noptmax = 3
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_workers=10,
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi5 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
