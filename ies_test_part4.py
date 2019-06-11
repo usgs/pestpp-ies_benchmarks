@@ -104,7 +104,7 @@ def tenpar_xsec_aal_sigma_dist_test():
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal_sigma_dist.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_sigma_dist.pst", num_slaves=10,
-                                master_dir=test_d, verbose=True, slave_root=model_d,
+                                master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     
     df = pd.read_csv(os.path.join(test_d,"pest_aal_sigma_dist.1.autoadaloc.csv"))
@@ -170,7 +170,7 @@ def tenpar_xsec_aal_invest():
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=30,
-                                master_dir=test_d, verbose=True, slave_root=model_d,
+                                master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
 
 
@@ -233,7 +233,7 @@ def tenpar_xsec_combined_autoadaloc_test():
     pst.control_data.noptmax = -1
     pst.write(os.path.join(template_d,"pest_aal.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=10,
-                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
 
     mat = pyemu.Matrix.from_names(pst.nnz_obs_names,pst.adj_par_names).to_dataframe()
@@ -263,7 +263,7 @@ def tenpar_xsec_combined_autoadaloc_test():
 
     pst.write(os.path.join(template_d, "pest_aal_restart.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal_restart.pst", num_slaves=10,
-                                master_dir=test_d, verbose=True, slave_root=model_d,
+                                master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
     df = pyemu.Matrix.from_ascii(os.path.join(test_d,"pest_aal_restart.1.autoadaloc.tCC.mat")).to_dataframe()
     print(df.loc[:,pst.adj_par_names[::2]].sum())
@@ -312,7 +312,7 @@ def freyberg_aal_test():
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=30, master_dir=test_d,
-                               slave_root=model_d,port=port)
+                               worker_root=model_d,port=port)
 
 
 def freyberg_combined_aal_test():
@@ -399,7 +399,7 @@ def freyberg_combined_aal_test():
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d, "pest_aal.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_aal.pst", num_slaves=30, master_dir=test_d,
-                               slave_root=model_d,port=port)
+                               worker_root=model_d,port=port)
 
     pr = pd.read_csv(os.path.join(test_d,"pest_aal.0.par.csv")).loc[:,zero_cond_pars]
     pt = pd.read_csv(os.path.join(test_d,"pest_aal.{0}.par.csv".format(pst.control_data.noptmax))).loc[:,zero_cond_pars]
@@ -422,7 +422,7 @@ def freyberg_aal_invest():
         pst.control_data.noptmax = -1
         pst.write(os.path.join(template_d, "pest_aal_jco.pst"))
         pyemu.os_utils.start_workers(template_d, exe_path.replace("-ies", "-glm"), "pest_aal_jco.pst", 30,
-                                    slave_root=model_d, master_dir=test_d, port=port,verbose=True)
+                                    worker_root=model_d, master_dir=test_d, port=port,verbose=True)
     jco = pyemu.Jco.from_binary(jco_file).to_dataframe()
 
     test_d = os.path.join(model_d,"master_combined_aal_test")
@@ -520,7 +520,7 @@ def tenpar_high_phi_test():
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
-                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi1 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
     pst.pestpp_options = {}
@@ -532,7 +532,7 @@ def tenpar_high_phi_test():
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
-                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi2 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
     diff = phi1 - phi2
@@ -547,7 +547,7 @@ def tenpar_high_phi_test():
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
-                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi3 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
     diff = phi3 - phi2
@@ -565,7 +565,7 @@ def tenpar_high_phi_test():
     pst.control_data.noptmax = 3
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
-                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi4 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
     assert os.path.exists(os.path.join(test_d,"pest_high_phi.3.obs.csv"))
@@ -582,7 +582,7 @@ def tenpar_high_phi_test():
     pst.control_data.noptmax = 3
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_slaves=10,
-                               master_dir=test_d, verbose=True, slave_root=model_d,
+                               master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     phi5 = pd.read_csv(os.path.join(test_d,"pest_high_phi.phi.actual.csv"),index_col=0)
     assert os.path.exists(os.path.join(test_d,"pest_high_phi.3.obs.csv"))
