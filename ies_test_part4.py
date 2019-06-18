@@ -626,8 +626,35 @@ def freyberg_svd_draws_invest():
 
 
 
-    
+def freyberg_center_on_test():
+    import flopy
+    model_d = "ies_freyberg"
+    test_d = os.path.join(model_d, "master_center_on1")
+    template_d = os.path.join(model_d, "template")
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    # print("loading pst")
+    pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
+    pst.pestpp_options = {"ies_num_reals":10}
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
+    pst.pestpp_options["ies_subset_size"] = 10
+    pst.control_data.noptmax = 3
+    pst.write(os.path.join(template_d, "pest_base.pst"))
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
+                               worker_root=model_d,port=port)
 
+    base_phi = pd.read_csv(os.path.join(test_d,"pest_base.phi.actual.csv"),index_col=0)
+    
+    pst.pestpp_options["ies_center_on"] = "base"
+    pst.write(os.path.join(template_d, "pest_center_on.pst"))
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_center_on.pst", num_workers=5, master_dir=test_d,
+                               worker_root=model_d,port=port)
+    center_phi = pd.read_csv(os.path.join(test_d,"pest_center_on.phi.actual.csv"),index_col=0)
+    print(base_phi.loc[:,"base"])
+    print(center_phi.loc[:,"base"])
+    assert center_phi.loc[pst.control_data.noptmax,"base"] < base_phi.loc[pst.control_data.noptmax,"base"]
+    
 
 if __name__ == "__main__":
     #tenpar_base_run_test()
@@ -642,8 +669,9 @@ if __name__ == "__main__":
     #freyberg_local_threads_test()
     #freyberg_aal_test()
     #tenpar_high_phi_test()
-    freyberg_svd_draws_invest()
+    #freyberg_svd_draws_invest()
 
     # freyberg_combined_aal_test()
-    freyberg_aal_invest()
+    #freyberg_aal_invest()
     #tenpar_high_phi_test()
+    freyberg_center_on_test()
