@@ -579,6 +579,7 @@ def tenpar_high_phi_test():
     pst.pestpp_options["ies_debug_fail_subset"] = True
     pst.pestpp_options["ies_debug_fail_remainder"] = True
     pst.pestpp_options["ies_debug_bad_phi"] = True
+    pst.pestpp_options["ies_center_on"] = "base"
     pst.control_data.noptmax = 3
     pst.write(os.path.join(template_d,"pest_high_phi.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_high_phi.pst", num_workers=10,
@@ -635,11 +636,12 @@ def freyberg_center_on_test():
        shutil.rmtree(test_d)
     # print("loading pst")
     pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
-    pst.pestpp_options = {"ies_num_reals":10}
+    pst.pestpp_options = {"ies_num_reals":5}
     pst.pestpp_options["ies_lambda_mults"] = 1.0
     pst.pestpp_options["lambda_scale_fac"] = 1.0
     pst.pestpp_options["ies_subset_size"] = 10
-    pst.control_data.noptmax = 3
+    pst.control_data.nphinored = 20
+    pst.control_data.noptmax = 6
     pst.write(os.path.join(template_d, "pest_base.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
@@ -654,7 +656,15 @@ def freyberg_center_on_test():
     print(base_phi.loc[:,"base"])
     print(center_phi.loc[:,"base"])
     assert center_phi.loc[pst.control_data.noptmax,"base"] < base_phi.loc[pst.control_data.noptmax,"base"]
-    
+    # ax = plt.subplot(111)
+    # base_phi = base_phi.loc[:5,:].apply(np.log10)
+    # center_phi = center_phi.loc[:5,:].apply(np.log10)
+    # ax.plot(base_phi.index,base_phi.loc[:,"base"],'b--',lw=2,label="center on ensemble mean")
+    # ax.plot(center_phi.index,center_phi.loc[:,"base"],'c--',lw=2,label="center on 'base' realization")
+    # ax.set_xlabel("iteration")
+    # ax.set_ylabel("$\\phi$")
+    # ax.legend()
+    # plt.show()
 
 if __name__ == "__main__":
     #tenpar_base_run_test()
@@ -673,5 +683,5 @@ if __name__ == "__main__":
 
     # freyberg_combined_aal_test()
     #freyberg_aal_invest()
-    #tenpar_high_phi_test()
-    freyberg_center_on_test()
+    tenpar_high_phi_test()
+    #freyberg_center_on_test()
