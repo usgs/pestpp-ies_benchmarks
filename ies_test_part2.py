@@ -62,7 +62,7 @@ else:
 
         
 if "windows" in platform.platform().lower():
-    exe_path = os.path.join(bin_path, "iwin", "ipestpp-ies.exe")
+    exe_path = os.path.join(bin_path, "win", "pestpp-ies.exe")
 elif "darwin" in platform.platform().lower():
     exe_path = os.path.join(bin_path,  "mac", "pestpp-ies")
 else:
@@ -696,9 +696,80 @@ def tenpar_rns_test():
     
 
 
+def tenpar_restart_test_2():
+    """tenpar par restart tests without supplying base obs en - the hard way"""
+    model_d = "ies_10par_xsec"
+
+    template_d = os.path.join(model_d, "template")
+    pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
+    num_reals = 30
+    test_d = os.path.join(model_d, "master_hard_restart")
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    #shutil.copytree(template_d, test_d)
+    pst.pestpp_options = {}
+    pst.pestpp_options = {"ies_num_reals":num_reals}
+    #pst.pestpp_options["ies_include_base"] = False
+    #pst.pestpp_options["ies_subset_how"] = "first"
+    pst.pestpp_options["ies_accept_phi_fac"] = 1.0
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
+    pst.pestpp_options["ies_lambda_dec_fac"] = 1.0
+    pst.pestpp_options["ies_init_lam"] = 10.0
+    pst.pestpp_options["ies_save_lambda_en"] = True
+    pst.control_data.noptmax = 1
+    pst.write(os.path.join(template_d,"pest_restart.pst"))
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_workers=10,
+                                worker_root=model_d, master_dir=test_d, port=port)
+    #pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
+    phi_df1 = pd.read_csv(os.path.join(test_d,"pest_restart.phi.composite.csv"),index_col=0)
+    par_df = pd.read_csv(os.path.join(test_d,"pest_restart.1.par.csv"),index_col=0)
+    #par_df = par_df.iloc[::2,:]
+    par_df.to_csv(os.path.join(template_d,"par1.csv"))
+
+    obs_df = pd.read_csv(os.path.join(test_d,"pest_restart.1.obs.csv"),index_col=0)
+    #obs_df = obs_df.iloc[::2,:]
+    obs_df.to_csv(os.path.join(template_d,"restart1.csv"))
+
+    shutil.copy2(os.path.join(test_d,"pest_restart.base.obs.csv"),os.path.join(template_d,"base.csv"))
+    shutil.copy2(os.path.join(test_d, "pest_restart.0.par.csv"), os.path.join(template_d, "par_base.csv"))
+
+    #pst.pestpp_options = {}
+    pst.pestpp_options["ies_par_en"] = "par_base.csv"
+    pst.pestpp_options["ies_restart_par_en"] = "par1.csv"
+    # pst.pestpp_options["ies_lambda_mults"] = 1.0
+    # pst.pestpp_options["lambda_scale_fac"] = 1.0
+    # pst.pestpp_options["ies_lambda_dec_fac"] = 1.0
+    # #pst.pestpp_options["ies_debug_fail_subset"] = True
+    #pst.pestpp_options["ies_debug_fail_remainder"] = True
+    #pst.pestpp_options["ies_debug_bad_phi"] = True
+    #pst.pestpp_options["ies_num_reals"] = num_reals
+    pst.pestpp_options["ies_restart_obs_en"] = "restart1.csv"
+    #pst.pestpp_options["ies_obs_en"] = "base.csv"
+    pst.control_data.noptmax = 1
+    pst.write(os.path.join(template_d,"pest_restart.pst"))
+    test_d = os.path.join(model_d, "master_hard_restart_wobase")
+    if os.path.exists(test_d):
+        shutil.rmtree(test_d)
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_workers=10,
+                                worker_root=model_d, master_dir=test_d, port=port)
+    assert os.path.exists(os.path.join(test_d,"pest_restart.{0}.par.csv".format(pst.control_data.noptmax))),\
+        os.listdir(test_d)
+    assert os.path.exists(os.path.join(test_d, "pest_restart.phi.group.csv"))
+    phi_df2 = pd.read_csv(os.path.join(test_d,"pest_restart.phi.composite.csv"),index_col=0)
+    diff = phi_df1.iloc[-1,1:].values - phi_df2.iloc[0,1:]
+    print(diff.sum())
+    assert diff.sum() == 0.0
+
+    df = pd.read_csv(os.path.join(test_d, "pest_restart.phi.group.csv"))
+    for oreal,preal in zip(df.obs_realization,df.par_realization):
+        assert oreal == preal,"{0},{1}".format(oreal,preal)
+    
+
 
 
 if __name__ == "__main__":
+    tenpar_restart_test_2()
     #write_empty_test_matrix()
 
     # setup_suite_dir("ies_10par_xsec")
@@ -728,7 +799,7 @@ if __name__ == "__main__":
     # tenpar_localizer_test1()
     #tenpar_localizer_test2()
     # tenpar_localizer_test3()
-    freyberg_localizer_test1()
+    #freyberg_localizer_test1()
     # freyberg_localizer_eval2()
     # freyberg_localizer_test3()
     # freyberg_dist_local_test()
