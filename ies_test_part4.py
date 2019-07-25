@@ -655,16 +655,8 @@ def freyberg_center_on_test():
     center_phi = pd.read_csv(os.path.join(test_d,"pest_center_on.phi.actual.csv"),index_col=0)
     print(base_phi.loc[:,"base"])
     print(center_phi.loc[:,"base"])
-    assert center_phi.loc[pst.control_data.noptmax,"base"] < base_phi.loc[pst.control_data.noptmax,"base"]
-    # ax = plt.subplot(111)
-    # base_phi = base_phi.loc[:5,:].apply(np.log10)
-    # center_phi = center_phi.loc[:5,:].apply(np.log10)
-    # ax.plot(base_phi.index,base_phi.loc[:,"base"],'b--',lw=2,label="center on ensemble mean")
-    # ax.plot(center_phi.index,center_phi.loc[:,"base"],'c--',lw=2,label="center on 'base' realization")
-    # ax.set_xlabel("iteration")
-    # ax.set_ylabel("$\\phi$")
-    # ax.legend()
-    # plt.show()
+
+    #assert center_phi.loc[pst.control_data.noptmax,"base"] < base_phi.loc[pst.control_data.noptmax,"base"]
 
 if __name__ == "__main__":
     #tenpar_base_run_test()
