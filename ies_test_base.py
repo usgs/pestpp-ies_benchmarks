@@ -130,15 +130,14 @@ def setup_suite_dir(model_d):
     # draw some ensembles
     idx = [i for i in range(num_reals)]
     idx[-1] = "base"
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov=cov, num_reals=num_reals,
-                                                    use_homegrown=True,group_chunks=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov=cov, num_reals=num_reals)
     pe.index = idx
     pe.to_csv(os.path.join(new_d, "par.csv"))
     pe.to_binary(os.path.join(new_d, "par.jcb"))
     pe.to_csv(os.path.join(new_d, "sweep_in.csv"))
     pe.loc[:, pst.adj_par_names].to_csv(os.path.join(new_d, "par_some.csv"))
     pe.iloc[:-3, :].to_csv(os.path.join(new_d, "restart_failed_par.csv"))
-    oe = pyemu.ObservationEnsemble.from_id_gaussian_draw(pst, num_reals=num_reals)
+    oe = pyemu.ObservationEnsemble.from_gaussian_draw(pst, num_reals=num_reals)
     oe.index = idx
     oe.to_csv(os.path.join(new_d, "obs.csv"))
     oe.iloc[:-3, :].to_csv(os.path.join(new_d, "restart_failed_base_obs.csv"))
