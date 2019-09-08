@@ -816,7 +816,7 @@ def tenpar_xsec_autoadaloc_test():
 
         #pname = pst.adj_par_names[0]
         #oname = pst.nnz_obs_names[0]
-        pe._transform()
+        pe.transform()
         for pname in pst.adj_par_names:
             for oname in pst.nnz_obs_names:
                 df = pd.DataFrame(data={pname:pe.loc[:,pname].values,oname:oe.loc[:,oname].values})
