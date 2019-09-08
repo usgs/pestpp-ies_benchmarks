@@ -106,7 +106,7 @@ def tenpar_narrow_range_test():
     cov = pyemu.Cov(x, names=pst.adj_par_names)
     cov.to_ascii(os.path.join(test_d, "prior.cov"))
     num_reals = 100000
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals=num_reals, use_homegrown=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals=num_reals)
     #pe.enforce()
     #pe.to_csv(os.path.join(test_d,"pyemu_draws.csv"))
 
@@ -174,7 +174,7 @@ def tenpar_full_cov_test():
     cov = pyemu.Cov(x,names=pst.adj_par_names)
     cov.to_ascii(os.path.join(test_d,"prior.cov"))
     num_reals = 10000
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals=num_reals,use_homegrown=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals=num_reals)
     pe.enforce()
 
     pst.control_data.noptmax = -2
@@ -197,7 +197,7 @@ def tenpar_full_cov_test():
 
     par.loc[pst.adj_par_names,"partrans"] = "log"
     par.loc[:,"parlbnd"] = 1.0e-10
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals=num_reals, use_homegrown=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals=num_reals)
     pe.enforce()
     pst.write(pst_name)
     pyemu.helpers.run(exe_path + " pest.pst", cwd=test_d)
@@ -278,7 +278,7 @@ def test_freyberg_full_cov():
     #cov = pyemu.Cov.from_binary(os.path.join(test_d, "prior.jcb"))
     cov = pyemu.Cov.from_parameter_data(pst)
 
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals, use_homegrown=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals)
     pe.to_csv(os.path.join(test_d, "pyemu_pe.csv"))
 
     # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
@@ -319,7 +319,7 @@ def test_freyberg_full_cov():
     pst.write(os.path.join(test_d,"pest.pst"))
     cov = pyemu.Cov.from_binary(os.path.join(test_d,"prior.jcb"))
 
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals,use_homegrown=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals)
     pe.to_csv(os.path.join(test_d,"pyemu_pe.csv"))
 
     # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
@@ -385,7 +385,7 @@ def test_freyberg_full_cov_reorder():
     #cov = pyemu.Cov.from_binary(os.path.join(test_d, "prior.jcb"))
     cov = pyemu.Cov.from_parameter_data(pst)
 
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals, use_homegrown=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst, cov, num_reals)
     pe.to_csv(os.path.join(test_d, "pyemu_pe.csv"))
 
     # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
@@ -428,7 +428,7 @@ def test_freyberg_full_cov_reorder():
     pst.write(os.path.join(test_d,"pest.pst"))
     cov = pyemu.Cov.from_binary(os.path.join(test_d,"prior.jcb"))
 
-    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals,use_homegrown=True)
+    pe = pyemu.ParameterEnsemble.from_gaussian_draw(pst,cov,num_reals)
     pe.to_csv(os.path.join(test_d,"pyemu_pe.csv"))
 
     # pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=10,
@@ -1090,7 +1090,7 @@ def tenpar_localizer_test1():
     pe.enforce()
     pe.to_csv(os.path.join(template_d, "par_local.csv"))
 
-    oe = pyemu.ObservationEnsemble.from_id_gaussian_draw(pst,num_reals=10)
+    oe = pyemu.ObservationEnsemble.from_gaussian_draw(pst,num_reals=10)
     oe.to_csv(os.path.join(template_d,"obs_local.csv"))
 
     pst.pestpp_options = {}
@@ -1146,7 +1146,7 @@ def tenpar_localizer_test2():
     pe.to_csv(os.path.join(template_d,"par_local.csv"))
 
     cov = pyemu.Cov.from_observation_data(pst)
-    oe = pyemu.ObservationEnsemble.from_id_gaussian_draw(pst=pst, num_reals=10)
+    oe = pyemu.ObservationEnsemble.from_gaussian_draw(pst=pst, num_reals=10)
     oe.to_csv(os.path.join(template_d, "obs_local.csv"))
 
     #mat = pyemu.Matrix.from_names(pst.nnz_obs_names,pst.adj_par_names).to_dataframe()
@@ -1381,7 +1381,7 @@ def tenpar_localizer_test3():
     pe.to_csv(os.path.join(template_d, "par_local.csv"))
 
     cov = pyemu.Cov.from_observation_data(pst)
-    oe = pyemu.ObservationEnsemble.from_id_gaussian_draw(pst=pst, num_reals=10)
+    oe = pyemu.ObservationEnsemble.from_gaussian_draw(pst=pst, num_reals=10)
     oe.to_csv(os.path.join(template_d, "obs_local.csv"))
 
 

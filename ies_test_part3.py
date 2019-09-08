@@ -458,7 +458,7 @@ def tenpar_localize_how_test():
     pe.enforce()
     pe.to_csv(os.path.join(template_d, "par_local.csv"))
 
-    oe = pyemu.ObservationEnsemble.from_id_gaussian_draw(pst, num_reals=10)
+    oe = pyemu.ObservationEnsemble.from_gaussian_draw(pst, num_reals=10)
     oe.to_csv(os.path.join(template_d, "obs_local.csv"))
 
     pst.pestpp_options = {}
@@ -544,7 +544,7 @@ def freyberg_local_threads_test():
         cov=pyemu.Cov.from_parameter_data(pst),num_reals=num_reals)
     pe.to_csv(os.path.join(template_d,"pars1.csv"))
     
-    pyemu.ObservationEnsemble.from_id_gaussian_draw(pst=pst,num_reals=num_reals).to_csv(os.path.join(template_d,"obs1.csv"))
+    pyemu.ObservationEnsemble.from_gaussian_draw(pst=pst,num_reals=num_reals).to_csv(os.path.join(template_d,"obs1.csv"))
 
     par_adj = par.loc[pst.adj_par_names,:].copy()
     par_adj.loc[:,"i"] = par_adj.parnme.apply(lambda x: int(x.split('_')[1][1:]))
