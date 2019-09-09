@@ -436,19 +436,20 @@ def test_freyberg_full_cov_reorder():
     pyemu.helpers.run(exe_path+" pest.pst",cwd=test_d)
     df = pd.read_csv(os.path.join(test_d, "pest.0.par.csv"), index_col=0).apply(np.log10)
     df.columns = [c.lower() for c in df.columns]
-    pe = pe.apply(np.log10)
-    pe_corr = pe.corr()
-    df_corr = df.corr()
+    pe = pe._df.apply(np.log10)
+    #print('corr')
+    #pe_corr = pe.corr()
+    #df_corr = df.corr()
 
-    for i,p1 in enumerate(pst.adj_par_names):
-        for p2 in pst.adj_par_names[i+1:]:
-            c1 = pe_corr.loc[p1,p2]
-            c2 = df_corr.loc[p1,p2]
-            #print(p1,p2,c1,c2)
+    # for i,p1 in enumerate(pst.adj_par_names):
+    #     for p2 in pst.adj_par_names[i+1:]:
+    #         c1 = pe_corr.loc[p1,p2]
+    #         c2 = df_corr.loc[p1,p2]
+    #         #print(p1,p2,c1,c2)
 
     diff_tol = 0.05
-
-    for c in df.columns:
+    print('compare')
+    for c in df.columns[::2]:
         if c not in pe.columns:
             continue
 
