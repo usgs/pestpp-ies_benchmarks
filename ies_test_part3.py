@@ -94,6 +94,9 @@ def clues_longnames_test():
     pe.to_csv(os.path.join(template_d,'par.csv'))
     pst.pestpp_options = {"ies_num_reals":num_reals}
     pst.control_data.noptmax = -1
+    par = pst.parameter_data
+    borked = par.loc[par.apply(lambda x: x.parlbnd >= x.parubnd, axis=1),"parnme"]
+    pst.parameter_data.loc[borked,"parubnd"] += 1
     pst.write(os.path.join(template_d,"pest.pst"))
     #pyemu.os_utils.run("{0} {1}".format(exe_path, "pest.pst"), cwd=test_d)
     pyemu.os_utils.start_workers(template_d,exe_path,"pest.pst",5,
@@ -862,5 +865,5 @@ if __name__ == "__main__":
     #tenpar_xsec_aal_invest()
     #temp()
     #tenpar_localize_how_test()
-    #clues_longnames_test()
-    freyberg_local_threads_test()
+    clues_longnames_test()
+    #freyberg_local_threads_test()
