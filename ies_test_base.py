@@ -327,7 +327,7 @@ if __name__ == "__main__":
 
     #compare_suite("ies_10par_xsec")
     #compare_suite("ies_freyberg")
-    test_freyberg()
+    #test_freyberg()
     test_10par_xsec()
 
     
