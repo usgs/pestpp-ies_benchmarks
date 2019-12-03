@@ -1465,15 +1465,15 @@ if __name__ == "__main__":
     #eval_freyberg()
     #eval_10par_xsec()
 
-    #full list of tests
+    # full list of tests
     # tenpar_subset_test()
-    #tenpar_full_cov_test()
+    # tenpar_full_cov_test()
     # eval_freyberg_full_cov_reorder()
     #test_freyberg_full_cov_reorder()
     # eval_freyberg_full_cov()
     # tenpar_tight_tol_test()
-    #  test_chenoliver()
-    tenpar_narrow_range_test()
+    test_chenoliver()
+    # tenpar_narrow_range_test()
     # test_freyberg_ineq()
     # tenpar_fixed_test()
     # tenpar_fixed_test2()\
