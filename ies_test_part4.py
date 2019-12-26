@@ -673,12 +673,16 @@ def freyberg_pdc_test():
     pst.pestpp_options["lambda_scale_fac"] = 1.0
     pst.pestpp_options["ies_subset_size"] = 10
     pst.pestpp_options["ies_drop_conflicts"] = True
+    pst.pestpp_options["ies_autoadaloc"] = True
     pst.control_data.nphinored = 20
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d, "pest_base.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
-
+    phi_csv = os.path.join(test_d,"pest_base.phi.actual.csv")
+    assert os.path.exists(phi_csv),phi_csv
+    pdc_phi = pd.read_csv(phi_csv,index_col=0)
+    assert pdc_phi.shape[0] == pst.control_data.noptmax + 1
     # scan the rec file for the conflicted obs names
     dropped = []
     with open(os.path.join(test_d,"pest_base.rec"),'r') as f:
@@ -705,6 +709,10 @@ def freyberg_pdc_test():
     pst.write(os.path.join(template_d, "pest_base.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
+    assert os.path.exists(phi_csv),phi_csv
+    base_phi = pd.read_csv(phi_csv,index_col=0)
+    assert base_phi.shape[0] == pst.control_data.noptmax + 1
+    # todo: check phis against each other
 
 
 if __name__ == "__main__":
