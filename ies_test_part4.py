@@ -658,6 +658,63 @@ def freyberg_center_on_test():
 
     #assert center_phi.loc[pst.control_data.noptmax,"base"] < base_phi.loc[pst.control_data.noptmax,"base"]
 
+def freyberg_pdc_test():
+    import flopy
+    model_d = "ies_freyberg"
+    test_d = os.path.join(model_d, "master_pdc")
+    template_d = os.path.join(model_d, "template")
+    if os.path.exists(test_d):
+      shutil.rmtree(test_d)
+    # print("loading pst")
+    pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
+    pst.observation_data.loc[pst.nnz_obs_names[0],"obsval"] += 20
+    pst.pestpp_options = {"ies_num_reals":5}
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
+    pst.pestpp_options["ies_subset_size"] = 10
+    pst.pestpp_options["ies_drop_conflicts"] = True
+    pst.pestpp_options["ies_autoadaloc"] = True
+    pst.control_data.nphinored = 20
+    pst.control_data.noptmax = 2
+    pst.write(os.path.join(template_d, "pest_base.pst"))
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
+                               worker_root=model_d,port=port)
+    phi_csv = os.path.join(test_d,"pest_base.phi.actual.csv")
+    assert os.path.exists(phi_csv),phi_csv
+    pdc_phi = pd.read_csv(phi_csv,index_col=0)
+    assert pdc_phi.shape[0] == pst.control_data.noptmax + 1
+    # scan the rec file for the conflicted obs names
+    dropped = []
+    with open(os.path.join(test_d,"pest_base.rec"),'r') as f:
+    	while True:
+    		line = f.readline()
+    		if line == "":
+    			raise Exception()
+    		if "...conflicted observations:" in line:
+    			while True:
+    				line = f.readline()
+    				if line == "":
+    					raise Exception()
+    				if line.startswith("dropping"):
+    					break
+    				dropped.append(line.strip().lower())
+    			break
+    print(dropped)
+    shutil.copy2(os.path.join(test_d,"pest_base.0.par.csv"),os.path.join(template_d,"pdc_par.csv"))
+    pst.pestpp_options["ies_par_en"] = "pdc_par.csv"
+    shutil.copy2(os.path.join(test_d,"pest_base.base.obs.csv"),os.path.join(template_d,"pdc_obs.csv"))
+    pst.pestpp_options["ies_obs_en"] = "pdc_obs.csv"
+    
+    pst.observation_data.loc[dropped,"weight"] = 0.0
+    pst.write(os.path.join(template_d, "pest_base.pst"))
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
+                               worker_root=model_d,port=port)
+    assert os.path.exists(phi_csv),phi_csv
+    base_phi = pd.read_csv(phi_csv,index_col=0)
+    assert base_phi.shape[0] == pst.control_data.noptmax + 1
+    # todo: check phis against each other
+
+
 if __name__ == "__main__":
     #tenpar_base_run_test()
     #tenpar_xsec_autoadaloc_test()
@@ -675,5 +732,6 @@ if __name__ == "__main__":
 
     # freyberg_combined_aal_test()
     #freyberg_aal_invest()
-    tenpar_high_phi_test()
+    #tenpar_high_phi_test()
     #freyberg_center_on_test()
+    freyberg_pdc_test()

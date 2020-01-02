@@ -764,6 +764,26 @@ def tenpar_restart_test_2():
     for oreal,preal in zip(df.obs_realization,df.par_realization):
         assert oreal == preal,"{0},{1}".format(oreal,preal)
     
+    pst.pestpp_options["ies_no_noise"] = True
+    pst.write(os.path.join(template_d,"pest_restart.pst"))
+    test_d = os.path.join(model_d, "master_hard_restart_wobase")
+    if os.path.exists(test_d):
+        shutil.rmtree(test_d)
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_workers=10,
+                                worker_root=model_d, master_dir=test_d, port=port)
+    assert os.path.exists(os.path.join(test_d,"pest_restart.{0}.par.csv".format(pst.control_data.noptmax))),\
+        os.listdir(test_d)
+    assert os.path.exists(os.path.join(test_d, "pest_restart.phi.group.csv"))
+
+    df = pd.read_csv(os.path.join(test_d, "pest_restart.phi.group.csv"))
+    for oreal,preal in zip(df.obs_realization,df.par_realization):
+        assert oreal == preal,"{0},{1}".format(oreal,preal)
+    df_act = pd.read_csv(os.path.join(test_d,"pest_restart.phi.actual.csv"),index_col=0)
+    df_comp = pd.read_csv(os.path.join(test_d,"pest_restart.phi.composite.csv"),index_col=0)
+    d = np.abs((df_act - df_comp).values)
+    print(d.sum())
+    assert d.sum() == 0.0,d.sum()
+
 
 
 
