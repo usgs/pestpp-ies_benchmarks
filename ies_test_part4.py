@@ -695,7 +695,7 @@ def freyberg_pdc_test():
     				line = f.readline()
     				if line == "":
     					raise Exception()
-    				if line.startswith("dropping"):
+    				if line.startswith("...dropping"):
     					break
     				dropped.append(line.strip().lower())
     			break
@@ -706,14 +706,18 @@ def freyberg_pdc_test():
     pst.pestpp_options["ies_obs_en"] = "pdc_obs.csv"
     
     pst.observation_data.loc[dropped,"weight"] = 0.0
+    pst.pestpp_options["ies_num_reals"] = 10
     pst.write(os.path.join(template_d, "pest_base.pst"))
+    test_d = os.path.join(model_d,"master_pdc_base")
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
     assert os.path.exists(phi_csv),phi_csv
     base_phi = pd.read_csv(phi_csv,index_col=0)
     assert base_phi.shape[0] == pst.control_data.noptmax + 1
+    diff = (pdc_phi - base_phi).apply(np.abs)
+    print(diff.max())
+    assert diff.max().max() == 0.0,diff.max().max()
     # todo: check phis against each other
-
 
 if __name__ == "__main__":
     #tenpar_base_run_test()
