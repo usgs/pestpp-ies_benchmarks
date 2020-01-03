@@ -711,12 +711,13 @@ def freyberg_pdc_test():
     test_d = os.path.join(model_d,"master_pdc_base")
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_base.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
+    phi_csv = os.path.join(test_d,"pest_base.phi.actual.csv")
     assert os.path.exists(phi_csv),phi_csv
     base_phi = pd.read_csv(phi_csv,index_col=0)
     assert base_phi.shape[0] == pst.control_data.noptmax + 1
     diff = (pdc_phi - base_phi).apply(np.abs)
     print(diff.max())
-    assert diff.max().max() == 0.0,diff.max().max()
+    assert diff.max().max() < 0.1,diff.max().max()
     # todo: check phis against each other
 
 if __name__ == "__main__":
