@@ -487,7 +487,6 @@ def tenpar_restart_binary_test():
     oe = pyemu.ObservationEnsemble.from_binary(pst,os.path.join(test_d,"pest_restart.0.obs.jcb"))
     pe = pyemu.ParameterEnsemble.from_binary(pst, os.path.join(test_d, "pest_restart.0.par.jcb"))
     df1 = pd.read_csv(os.path.join(test_d,"pest_restart.phi.actual.csv"),index_col=0)
-    assert oe.shape == (num_reals,pst.nobs)
     assert pe.shape == (num_reals,pst.npar)
 
     assert os.path.exists(os.path.join(test_d, "pest_restart.phi.group.csv"))
@@ -510,6 +509,8 @@ def tenpar_restart_binary_test():
     print(pe)
     #assert pe_diff.max().max() == 0.0, pe_diff.max()
     #assert oe_diff.max().max() == 0.0, oe_diff.max()
+    print(oe_diff)
+    assert np.abs(oe_diff.values).sum() == 0.0,np.abs(oe_diff.values).sum() 
     df2 = pd.read_csv(os.path.join(test_d+"_2", "pest_restart_2.phi.actual.csv"), index_col=0)
     assert oe1.shape == (num_reals, pst.nobs)
     assert pe1.shape == (num_reals, pst.npar)
@@ -788,7 +789,8 @@ def tenpar_restart_test_2():
 
 
 if __name__ == "__main__":
-    tenpar_restart_test_2()
+    #tenpar_restart_test_2()
+    tenpar_restart_binary_test()
     #write_empty_test_matrix()
 
     # setup_suite_dir("ies_10par_xsec")

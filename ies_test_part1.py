@@ -744,7 +744,7 @@ def test_freyberg_ineq():
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_ineq.pst", num_workers=10, master_dir=test_d,
                                worker_root=model_d,port=port)
 
-    obs_csvs = [f for f in os.listdir(test_d) if "obs" in f and f.endswith(".csv")]
+    obs_csvs = [f for f in os.listdir(test_d) if f.endswith("obs.csv")]
     print(obs_csvs)
     df = pd.read_csv(os.path.join(test_d,obs_csvs[-1]),index_col=0)
     df.columns = df.columns.map(str.lower)
@@ -1472,9 +1472,9 @@ if __name__ == "__main__":
     #test_freyberg_full_cov_reorder()
     # eval_freyberg_full_cov()
     # tenpar_tight_tol_test()
-    test_chenoliver()
+    #test_chenoliver()
     # tenpar_narrow_range_test()
-    # test_freyberg_ineq()
+    test_freyberg_ineq()
     # tenpar_fixed_test()
     # tenpar_fixed_test2()\
     # tenpar_subset_how_test()
