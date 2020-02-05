@@ -201,7 +201,7 @@ def tenpar_base_run_test():
         shutil.rmtree(test_d)
     shutil.copytree(template_d,test_d)
     pyemu.os_utils.run("{0} pest_base.pst".format(exe_path),cwd=test_d)
-
+    
     pst.control_data.noptmax = 0
     pst.write(os.path.join(template_d, "pest_base.pst"))
     pyemu.os_utils.run("{0} pest_base.pst".format(exe_path.replace("-ies","-glm")), cwd=test_d)
@@ -212,6 +212,46 @@ def tenpar_base_run_test():
     print(pst.res.modelled)
     d = oe.loc["base",:] - pst.res.modelled
     assert d.sum() == 0.0,d
+
+    pst.control_data.noptmax = 0
+    pst.observation_data.loc[:,"weight"] = 0.0
+    pst.write(os.path.join(test_d, "pest_base.pst"))
+    pyemu.os_utils.run("{0} pest_base.pst".format(exe_path), cwd=test_d)
+
+def tenpar_base_par_file_test():
+    model_d = "ies_10par_xsec"
+    test_d = os.path.join(model_d, "master_parfile1")
+    template_d = os.path.join(model_d, "test_template")
+
+    if not os.path.exists(template_d):
+        raise Exception("template_d {0} not found".format(template_d))
+    pst_name = os.path.join(template_d, "pest.pst")
+    pst = pyemu.Pst(pst_name)
+    pst.pestpp_options = {}
+    pst.pestpp_options["ies_num_reals"] = 10
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
+    pst.pestpp_options["ies_include_base"] = True
+    pst.control_data.noptmax = 2
+
+    pst.write(os.path.join(template_d,"pest_base.pst"))
+    if os.path.exists(test_d):
+        shutil.rmtree(test_d)
+    shutil.copytree(template_d,test_d)
+    pyemu.os_utils.run("{0} pest_base.pst".format(exe_path),cwd=test_d)
+    assert os.path.exists(os.path.join(test_d,"pest_base.1.par"))
+    assert os.path.exists(os.path.join(test_d,"pest_base.2.par"))
+
+    pe = pd.read_csv(os.path.join(test_d,"pest_base.1.par.csv"),index_col=0)
+    pvals = pyemu.pst_utils.read_parfile(os.path.join(test_d,"pest_base.1.par"))
+    d = pe.loc["base",pvals.index.values].values - pvals.parval1.values
+    print(d)
+    assert np.abs(d).max() < 1.0e-5
+    pe = pd.read_csv(os.path.join(test_d,"pest_base.2.par.csv"),index_col=0)
+    pvals = pyemu.pst_utils.read_parfile(os.path.join(test_d,"pest_base.2.par"))
+    d = pe.loc["base",pvals.index.values].values - pvals.parval1.values
+    print(d)
+    assert np.abs(d).max() < 1.0e-5
 
 
 def tenpar_xsec_combined_autoadaloc_test():
@@ -751,6 +791,7 @@ def freyberg_rcov_test():
 
 if __name__ == "__main__":
     #tenpar_base_run_test()
+    tenpar_base_par_file_test()
     #tenpar_xsec_autoadaloc_test()
     #tenpar_xsec_combined_autoadaloc_test()
     #tenpar_xsec_aal_sigma_dist_test()
@@ -769,4 +810,4 @@ if __name__ == "__main__":
     #tenpar_high_phi_test()
     #freyberg_center_on_test()
     #freyberg_pdc_test()
-    freyberg_rcov_test()
+    #freyberg_rcov_test()
