@@ -749,6 +749,7 @@ def tenpar_by_vars_test():
     
     pst.pestpp_options["ies_csv_by_reals"] = False
     pst.write(pst_name)
+    
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
@@ -764,6 +765,9 @@ def tenpar_by_vars_test():
     pst.pestpp_options['ies_par_en'] = "restart_by_vars.par.csv"
     pst.pestpp_options['ies_obs_en'] = "restart_by_vars.obs.csv"
     pst.write(pst_name)
+    test_d = os.path.join(model_d, "master_vars_test1")
+    if os.path.exists(test_d):
+        shutil.rmtree(test_d)
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_vars.pst", num_workers=10,
                                 master_dir=test_d, verbose=True, worker_root=model_d,
                                 port=port)
@@ -861,9 +865,9 @@ if __name__ == "__main__":
     #tenpar_xsec_autoadaloc_test()
     #tenpar_xsec_combined_autoadaloc_test()
     #tenpar_xsec_aal_sigma_dist_test()
-    #tenpar_by_vars_test()
+    tenpar_by_vars_test()
     #tenpar_xsec_aal_invest()
     #temp()
     #tenpar_localize_how_test()
-    clues_longnames_test()
+    #clues_longnames_test()
     #freyberg_local_threads_test()

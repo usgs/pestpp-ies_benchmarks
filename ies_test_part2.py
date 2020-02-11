@@ -745,7 +745,7 @@ def tenpar_restart_test_2():
     #pst.pestpp_options["ies_debug_bad_phi"] = True
     #pst.pestpp_options["ies_num_reals"] = num_reals
     pst.pestpp_options["ies_restart_obs_en"] = "restart1.csv"
-    #pst.pestpp_options["ies_obs_en"] = "base.csv"
+    pst.pestpp_options["ies_obs_en"] = "base.csv"
     pst.control_data.noptmax = 1
     pst.write(os.path.join(template_d,"pest_restart.pst"))
     test_d = os.path.join(model_d, "master_hard_restart_wobase")
@@ -757,15 +757,16 @@ def tenpar_restart_test_2():
         os.listdir(test_d)
     assert os.path.exists(os.path.join(test_d, "pest_restart.phi.group.csv"))
     phi_df2 = pd.read_csv(os.path.join(test_d,"pest_restart.phi.composite.csv"),index_col=0)
-    diff = phi_df1.iloc[-1,1:].values - phi_df2.iloc[0,1:]
+    diff = np.abs(phi_df1.iloc[-1,1:].values - phi_df2.iloc[0,1:])
     print(diff.sum())
-    assert diff.sum() == 0.0
+    assert diff.sum() < 0.01
 
     df = pd.read_csv(os.path.join(test_d, "pest_restart.phi.group.csv"))
     for oreal,preal in zip(df.obs_realization,df.par_realization):
         assert oreal == preal,"{0},{1}".format(oreal,preal)
     
     pst.pestpp_options["ies_no_noise"] = True
+    pst.pestpp_options.pop("ies_obs_en")
     pst.write(os.path.join(template_d,"pest_restart.pst"))
     test_d = os.path.join(model_d, "master_hard_restart_wobase")
     if os.path.exists(test_d):
@@ -789,8 +790,8 @@ def tenpar_restart_test_2():
 
 
 if __name__ == "__main__":
-    #tenpar_restart_test_2()
-    tenpar_restart_binary_test()
+    tenpar_restart_test_2()
+    #tenpar_restart_binary_test()
     #write_empty_test_matrix()
 
     # setup_suite_dir("ies_10par_xsec")
