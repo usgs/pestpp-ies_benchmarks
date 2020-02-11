@@ -227,8 +227,10 @@ def tenpar_subset_test():
     # first without subset
     pst.pestpp_options = {}
     pst.pestpp_options["ies_num_reals"] = 10
-    pst.pestpp_options["ies_lambda_mults"] = "1.0"
-    pst.pestpp_options["ies_accept_phi_fac"] = 100.0
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
+    pst.pestpp_options["ies_accept_phi_fac"] = 10000.0
+
     pst.pestpp_options["ies_subset_size"] = 21
     pst.write(os.path.join(template_d, "pest.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=15,
@@ -237,11 +239,15 @@ def tenpar_subset_test():
 
     pst.pestpp_options = {}
     pst.pestpp_options["ies_num_reals"] = 10
-    pst.pestpp_options["ies_lambda_mults"] = "1.0"
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
     pst.pestpp_options["ies_subset_size"] = 5
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
     pst.pestpp_options["ies_accept_phi_fac"] = 100.0
 
     pst.write(os.path.join(template_d, "pest.pst"))
+    test_d = os.path.join(model_d, "master_subset_test1")
+    if os.path.exists(test_d):
+        shutil.rmtree(test_d)
     pyemu.os_utils.start_workers(template_d, exe_path, "pest.pst", num_workers=15,
                                worker_root=model_d, master_dir=test_d,port=port)
     df_sub = pd.read_csv(os.path.join(test_d, "pest.phi.meas.csv"),index_col=0)
@@ -1466,7 +1472,7 @@ if __name__ == "__main__":
     #eval_10par_xsec()
 
     # full list of tests
-    # tenpar_subset_test()
+    tenpar_subset_test()
     # tenpar_full_cov_test()
     # eval_freyberg_full_cov_reorder()
     #test_freyberg_full_cov_reorder()
@@ -1474,7 +1480,7 @@ if __name__ == "__main__":
     # tenpar_tight_tol_test()
     #test_chenoliver()
     # tenpar_narrow_range_test()
-    test_freyberg_ineq()
+    #test_freyberg_ineq()
     # tenpar_fixed_test()
     # tenpar_fixed_test2()\
     # tenpar_subset_how_test()
