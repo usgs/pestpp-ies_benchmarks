@@ -787,6 +787,34 @@ def freyberg_pdc_test():
             conflict.append(name)
     print(conflict)
 
+    pst.pestpp_options["ies_no_noise"] = True
+    pst.pestpp_options.pop("ies_obs_en")
+    pst.write(os.path.join(template_d, "pest_pdc_dist.pst"))
+    test_d = os.path.join(model_d,"master_pdc_dist")
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_pdc_dist.pst", num_workers=5, master_dir=test_d,
+                               worker_root=model_d,port=port)
+
+    oe = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.0.obs.csv"),index_col=0)
+    oe_base = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.base.obs.csv"),index_col=0)
+    smn,sstd = oe.mean(),oe.std()
+    omn,ostd = oe_base.mean(),oe_base.std()
+    for name in oe.columns:
+        if name not in pst.nnz_obs_names:
+            continue
+        #print(name,smn[name],sstd[name],omn[name],ostd[name])
+    smin = smn - sstd
+    smax = smn + sstd
+    omin = omn - ostd
+    omax = omn + ostd
+    conflict = []
+    for name,omnn,omx,smnn,smx in zip(oe.columns.values,omin,omax,smin,smax):
+        if name not in pst.nnz_obs_names:
+            continue
+        print(name,smn[name],sstd[name],smnn,smx,
+            omn[name],ostd[name],omnn,omx)
+        if omx < smnn or omnn > smx:
+            conflict.append(name)
+    print(conflict)
 
 
     
