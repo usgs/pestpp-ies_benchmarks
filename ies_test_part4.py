@@ -758,6 +758,65 @@ def freyberg_pdc_test():
     diff = (pdc_phi - base_phi).apply(np.abs)
     print(diff.max())
     assert diff.max().max() < 0.1,diff.max().max()
+
+    pst.pestpp_options["ies_pdc_sigma_distance"] = 1.0
+    pst.write(os.path.join(template_d, "pest_pdc_dist.pst"))
+    test_d = os.path.join(model_d,"master_pdc_dist")
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_pdc_dist.pst", num_workers=5, master_dir=test_d,
+                               worker_root=model_d,port=port)
+
+    oe = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.0.obs.csv"),index_col=0)
+    oe_base = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.base.obs.csv"),index_col=0)
+    smn,sstd = oe.mean(),oe.std()
+    omn,ostd = oe_base.mean(),oe_base.std()
+    for name in oe.columns:
+        if name not in pst.nnz_obs_names:
+            continue
+        #print(name,smn[name],sstd[name],omn[name],ostd[name])
+    smin = smn - sstd
+    smax = smn + sstd
+    omin = omn - ostd
+    omax = omn + ostd
+    conflict = []
+    for name,omnn,omx,smnn,smx in zip(oe.columns.values,omin,omax,smin,smax):
+        if name not in pst.nnz_obs_names:
+            continue
+        print(name,smn[name],sstd[name],smnn,smx,
+            omn[name],ostd[name],omnn,omx)
+        if omx < smnn or omnn > smx:
+            conflict.append(name)
+    print(conflict)
+
+    pst.pestpp_options["ies_no_noise"] = True
+    pst.pestpp_options.pop("ies_obs_en")
+    pst.write(os.path.join(template_d, "pest_pdc_dist.pst"))
+    test_d = os.path.join(model_d,"master_pdc_dist")
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_pdc_dist.pst", num_workers=5, master_dir=test_d,
+                               worker_root=model_d,port=port)
+
+    oe = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.0.obs.csv"),index_col=0)
+    oe_base = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.base.obs.csv"),index_col=0)
+    smn,sstd = oe.mean(),oe.std()
+    omn,ostd = oe_base.mean(),oe_base.std()
+    for name in oe.columns:
+        if name not in pst.nnz_obs_names:
+            continue
+        #print(name,smn[name],sstd[name],omn[name],ostd[name])
+    smin = smn - sstd
+    smax = smn + sstd
+    omin = omn - ostd
+    omax = omn + ostd
+    conflict = []
+    for name,omnn,omx,smnn,smx in zip(oe.columns.values,omin,omax,smin,smax):
+        if name not in pst.nnz_obs_names:
+            continue
+        print(name,smn[name],sstd[name],smnn,smx,
+            omn[name],ostd[name],omnn,omx)
+        if omx < smnn or omnn > smx:
+            conflict.append(name)
+    print(conflict)
+
+
     
 def freyberg_rcov_test():
     import flopy
@@ -769,7 +828,7 @@ def freyberg_rcov_test():
     # print("loading pst")
     pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
     pst.observation_data.loc[pst.nnz_obs_names[0],"obsval"] += 20
-    pst.pestpp_options = {"ies_num_reals":20}
+    pst.pestpp_options = {"ies_num_reals":8}
     pst.pestpp_options["ies_debug_fail_remainder"] = True
     #pst.pestpp_options["ies_lambda_mults"] = 1.0
     #pst.pestpp_options["lambda_scale_fac"] = 1.0
@@ -780,18 +839,30 @@ def freyberg_rcov_test():
     pst.control_data.nphinored = 20
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d, "pest_rescov.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_rescov.pst", num_workers=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_rescov.pst", num_workers=8, master_dir=test_d,
                                worker_root=model_d,port=port)
+    # check that the shrunk res cov has the same diag as the org res cov
+    org_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.res.cov"))
+    shrunk_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.shrunk_res.cov"))
+    diff = np.abs(np.diag(org_rescov.x) - np.diag(shrunk_rescov.x))
+    print(diff)
+    assert diff.sum() < 1.0e-6,diff.sum()
     shutil.copy2(os.path.join(test_d,"pest_rescov.2.res.cov"),os.path.join(template_d,"post_obs.cov"))
     pst.pestpp_options["obscov"] = "post_obs.cov"
+    pst.pestpp_options["ies_drop_conflicts"] = False
     pst.write(os.path.join(template_d, "pest_bmw.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_bmw.pst", num_workers=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_bmw.pst", num_workers=8, master_dir=test_d,
                                worker_root=model_d,port=port)
+    org_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.res.cov"))
+    shrunk_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.shrunk_res.cov"))
+    diff = np.abs(np.diag(org_rescov.x) - np.diag(shrunk_rescov.x))
+    print(diff)
+    assert diff.sum() < 1.0e-6,diff.sum()
 
 
 if __name__ == "__main__":
     #tenpar_base_run_test()
-    tenpar_base_par_file_test()
+    #tenpar_base_par_file_test()
     #tenpar_xsec_autoadaloc_test()
     #tenpar_xsec_combined_autoadaloc_test()
     #tenpar_xsec_aal_sigma_dist_test()
@@ -810,4 +881,4 @@ if __name__ == "__main__":
     #tenpar_high_phi_test()
     #freyberg_center_on_test()
     #freyberg_pdc_test()
-    #freyberg_rcov_test()
+    freyberg_rcov_test()
