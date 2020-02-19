@@ -828,7 +828,7 @@ def freyberg_rcov_test():
     # print("loading pst")
     pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
     pst.observation_data.loc[pst.nnz_obs_names[0],"obsval"] += 20
-    pst.pestpp_options = {"ies_num_reals":20}
+    pst.pestpp_options = {"ies_num_reals":8}
     pst.pestpp_options["ies_debug_fail_remainder"] = True
     #pst.pestpp_options["ies_lambda_mults"] = 1.0
     #pst.pestpp_options["lambda_scale_fac"] = 1.0
@@ -843,6 +843,7 @@ def freyberg_rcov_test():
                                worker_root=model_d,port=port)
     shutil.copy2(os.path.join(test_d,"pest_rescov.2.res.cov"),os.path.join(template_d,"post_obs.cov"))
     pst.pestpp_options["obscov"] = "post_obs.cov"
+    pst.pestpp_options["ies_drop_conflicts"] = False
     pst.write(os.path.join(template_d, "pest_bmw.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_bmw.pst", num_workers=5, master_dir=test_d,
                                worker_root=model_d,port=port)
@@ -868,5 +869,5 @@ if __name__ == "__main__":
     #freyberg_aal_invest()
     #tenpar_high_phi_test()
     #freyberg_center_on_test()
-    freyberg_pdc_test()
-    #freyberg_rcov_test()
+    #freyberg_pdc_test()
+    freyberg_rcov_test()
