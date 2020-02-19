@@ -853,8 +853,8 @@ def freyberg_rcov_test():
     pst.write(os.path.join(template_d, "pest_bmw.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_bmw.pst", num_workers=8, master_dir=test_d,
                                worker_root=model_d,port=port)
-    org_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.res.cov"))
-    shrunk_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.shrunk_res.cov"))
+    org_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_bmw.2.res.cov"))
+    shrunk_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_bmw.2.shrunk_res.cov"))
     diff = np.abs(np.diag(org_rescov.x) - np.diag(shrunk_rescov.x))
     print(diff)
     assert diff.sum() < 1.0e-6,diff.sum()
