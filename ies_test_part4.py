@@ -839,14 +839,25 @@ def freyberg_rcov_test():
     pst.control_data.nphinored = 20
     pst.control_data.noptmax = 2
     pst.write(os.path.join(template_d, "pest_rescov.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_rescov.pst", num_workers=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_rescov.pst", num_workers=8, master_dir=test_d,
                                worker_root=model_d,port=port)
+    # check that the shrunk res cov has the same diag as the org res cov
+    org_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.res.cov"))
+    shrunk_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.shrunk_res.cov"))
+    diff = np.abs(np.diag(org_rescov.x) - np.diag(shrunk_rescov.x))
+    print(diff)
+    assert diff.sum() < 1.0e-6,diff.sum()
     shutil.copy2(os.path.join(test_d,"pest_rescov.2.res.cov"),os.path.join(template_d,"post_obs.cov"))
     pst.pestpp_options["obscov"] = "post_obs.cov"
     pst.pestpp_options["ies_drop_conflicts"] = False
     pst.write(os.path.join(template_d, "pest_bmw.pst"))
-    pyemu.os_utils.start_workers(template_d, exe_path, "pest_bmw.pst", num_workers=5, master_dir=test_d,
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_bmw.pst", num_workers=8, master_dir=test_d,
                                worker_root=model_d,port=port)
+    org_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.res.cov"))
+    shrunk_rescov = pyemu.Cov.from_ascii(os.path.join(test_d,"pest_rescov.2.shrunk_res.cov"))
+    diff = np.abs(np.diag(org_rescov.x) - np.diag(shrunk_rescov.x))
+    print(diff)
+    assert diff.sum() < 1.0e-6,diff.sum()
 
 
 if __name__ == "__main__":
