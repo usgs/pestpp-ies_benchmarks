@@ -239,16 +239,16 @@ def tenpar_base_par_file_test():
         shutil.rmtree(test_d)
     shutil.copytree(template_d,test_d)
     pyemu.os_utils.run("{0} pest_base.pst".format(exe_path),cwd=test_d)
-    assert os.path.exists(os.path.join(test_d,"pest_base.1.par"))
-    assert os.path.exists(os.path.join(test_d,"pest_base.2.par"))
+    assert os.path.exists(os.path.join(test_d,"pest_base.1.base.par"))
+    assert os.path.exists(os.path.join(test_d,"pest_base.2.base.par"))
 
     pe = pd.read_csv(os.path.join(test_d,"pest_base.1.par.csv"),index_col=0)
-    pvals = pyemu.pst_utils.read_parfile(os.path.join(test_d,"pest_base.1.par"))
+    pvals = pyemu.pst_utils.read_parfile(os.path.join(test_d,"pest_base.1.base.par"))
     d = pe.loc["base",pvals.index.values].values - pvals.parval1.values
     print(d)
     assert np.abs(d).max() < 1.0e-5
     pe = pd.read_csv(os.path.join(test_d,"pest_base.2.par.csv"),index_col=0)
-    pvals = pyemu.pst_utils.read_parfile(os.path.join(test_d,"pest_base.2.par"))
+    pvals = pyemu.pst_utils.read_parfile(os.path.join(test_d,"pest_base.2.base.par"))
     d = pe.loc["base",pvals.index.values].values - pvals.parval1.values
     print(d)
     assert np.abs(d).max() < 1.0e-5
@@ -860,6 +860,77 @@ def freyberg_rcov_test():
     assert diff.sum() < 1.0e-6,diff.sum()
 
 
+def tenpar_align_test():
+    model_d = "ies_10par_xsec"
+    test_d = os.path.join(model_d, "master_align_test")
+    template_d = os.path.join(model_d, "test_template")
+
+    if not os.path.exists(template_d):
+        raise Exception("template_d {0} not found".format(template_d))
+    pst_name = os.path.join(template_d, "pest.pst")
+    pst = pyemu.Pst(pst_name)
+
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    #shutil.copytree(template_d,test_d)
+    np.random.seed(1234)
+    oe = pyemu.ObservationEnsemble.from_gaussian_draw(pst,num_reals=9)
+    oe.loc["base",pst.nnz_obs_names] = pst.observation_data.loc[pst.nnz_obs_names,"obsval"]
+    oe.loc[:,"new_index"] = list(oe.index.map(lambda x: str(x)))
+    oe.set_index("new_index",inplace=True)
+    oe.sort_index(inplace=True,ascending=False)
+    oe.to_csv(os.path.join(template_d,"out_of_order_oe.csv"))
+    pst.pestpp_options["ies_obs_en"] = "out_of_order_oe.csv"
+    pst.pestpp_options["ies_debug_fail_remainder"] = True
+    pst.control_data.noptmax = 1
+    pst_name = "pest_align.pst"
+    pst.write(os.path.join(template_d,pst_name))
+    #pyemu.os_utils.run("{0} {1}".format(exe_path,pst_name),cwd=test_d)
+    pyemu.os_utils.start_workers(template_d, exe_path, pst_name, num_workers=8, master_dir=test_d,
+                               worker_root=model_d,port=port)
+    pe_file = os.path.join(test_d,pst_name.replace(".pst",".1.par.csv"))
+    oe_file = os.path.join(test_d,pst_name.replace(".pst",".1.obs.csv"))
+    assert os.path.exists(pe_file),pe_file
+    assert os.path.exists(oe_file),oe_file
+    pe = pd.read_csv(pe_file)
+    oe1 = pd.read_csv(oe_file)
+    print(pe.columns)
+    print(oe1.columns)
+    for i in pe.index:
+        pr = pe.loc[i,"real_name"]
+        or1 = oe1.loc[i,"real_name"]
+        print(pr,or1)
+        if (pr != or1):
+
+            raise Exception("real names differ " + pr + "," + or1)
+    oe1.set_index("real_name")
+    oe1.to_csv(os.path.join(template_d,"align_obs_restart.csv"))
+    shutil.copy2(os.path.join(test_d,pst_name.replace(".pst",".0.par.csv")),os.path.join(template_d,"align_par.csv"))
+    pst.pestpp_options["ies_restart_obs_en"] = "align_obs_restart.csv"
+    pst.pestpp_options["ies_par_en"] = "align_par.csv"
+    pst.write(os.path.join(template_d,pst_name))
+    #pyemu.os_utils.run("{0} {1}".format(exe_path,pst_name),cwd=test_d)
+    pyemu.os_utils.start_workers(template_d, exe_path, pst_name, num_workers=8, master_dir=test_d,
+                               worker_root=model_d,port=port)
+    pe_file = os.path.join(test_d,pst_name.replace(".pst",".1.par.csv"))
+    oe_file = os.path.join(test_d,pst_name.replace(".pst",".1.obs.csv"))
+    assert os.path.exists(pe_file),pe_file
+    assert os.path.exists(oe_file),oe_file
+    pe = pd.read_csv(pe_file)
+    oe1 = pd.read_csv(oe_file)
+    print(pe.columns)
+    print(oe1.columns)
+    for i in pe.index:
+        pr = pe.loc[i,"real_name"]
+        or1 = oe1.loc[i,"real_name"]
+        print(pr,or1)
+        if (pr != or1):
+
+            raise Exception("real names differ " + pr + "," + or1)
+
+
+
+
 if __name__ == "__main__":
     #tenpar_base_run_test()
     #tenpar_base_par_file_test()
@@ -881,4 +952,5 @@ if __name__ == "__main__":
     #tenpar_high_phi_test()
     #freyberg_center_on_test()
     #freyberg_pdc_test()
-    freyberg_rcov_test()
+    #freyberg_rcov_test()
+    tenpar_align_test()
