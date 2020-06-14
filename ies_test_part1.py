@@ -1460,19 +1460,8 @@ def tenpar_localizer_test3():
 if __name__ == "__main__":
     # write_empty_test_matrix()
 
-    # setup_suite_dir("ies_10par_xsec")
-    # setup_suite_dir("ies_freyberg")
-    # run_suite("ies_10par_xsec")
-    # run_suite("ies_freyberg")
-    # rebase("ies_freyberg")
-    # rebase("ies_10par_xsec")
-    # compare_suite("ies_10par_xsec")
-    # compare_suite("ies_freyberg")
-    #eval_freyberg()
-    #eval_10par_xsec()
-
     # full list of tests
-    tenpar_subset_test()
+    # tenpar_subset_test()
     # tenpar_full_cov_test()
     # eval_freyberg_full_cov_reorder()
     #test_freyberg_full_cov_reorder()
@@ -1501,4 +1490,5 @@ if __name__ == "__main__":
     # tenpar_localize_how_test()
     #tenpar_incr_num_reals_test()
     #freyberg_dist_local_invest()
-    #test_freyberg_full_cov_reorder()
+    test_freyberg_full_cov_reorder_run()
+    #test_freyberg_full_cov()
