@@ -76,7 +76,7 @@ noptmax = 3
 
 compare_files = ["pest.phi.actual.csv", "pest.phi.meas.csv", "pest.phi.regul.csv",
                  "pest.{0}.par.csv".format(noptmax), "pest.{0}.obs.csv".format(noptmax),
-                 "pest.{0}.par.csv".format(0), "pest.base.obs.csv"]
+                 "pest.{0}.par.csv".format(0), "pest.obs+noise.obs.csv"]
 diff_tol = 1.0e-6
 port = 4016
 num_reals = 10
@@ -482,7 +482,7 @@ def tenpar_restart_binary_test():
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_workers=10,
                                 worker_root=model_d, master_dir=test_d, port=port)
     # pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
-    for f in ["pest_restart.0.par.jcb","pest_restart.base.obs.jcb","pest_restart.0.obs.jcb"]:
+    for f in ["pest_restart.0.par.jcb","pest_restart.obs+noise.jcb","pest_restart.0.obs.jcb"]:
         shutil.copy2(os.path.join(test_d,f),os.path.join(template_d,f))
     oe = pyemu.ObservationEnsemble.from_binary(pst,os.path.join(test_d,"pest_restart.0.obs.jcb"))
     pe = pyemu.ParameterEnsemble.from_binary(pst, os.path.join(test_d, "pest_restart.0.par.jcb"))
@@ -495,7 +495,7 @@ def tenpar_restart_binary_test():
     assert diff.max() == 0, diff
 
     pst.pestpp_options["ies_par_en"] = "pest_restart.0.par.jcb"
-    pst.pestpp_options["ies_obs_en"] = "pest_restart.base.obs.jcb"
+    pst.pestpp_options["ies_obs_en"] = "pest_restart.obs+noise.jcb"
     pst.pestpp_options["ies_restart_obs_en"] = "pest_restart.0.obs.jcb"
     pst.write(os.path.join(template_d, "pest_restart_2.pst"))
     pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart_2.pst", num_workers=10,
@@ -564,7 +564,7 @@ def tenpar_restart_test():
     obs_df = obs_df.iloc[::2,:]
     obs_df.to_csv(os.path.join(template_d,"restart1.csv"))
 
-    shutil.copy2(os.path.join(test_d,"pest_restart.base.obs.csv"),os.path.join(template_d,"base.csv"))
+    shutil.copy2(os.path.join(test_d,"pest_restart.obs+noise.csv"),os.path.join(template_d,"base.csv"))
 
     pst.pestpp_options = {}
     pst.pestpp_options["ies_par_en"] = "par1.csv"
@@ -622,7 +622,7 @@ def tenpar_par_restart_test():
     #obs_df = obs_df.iloc[::2,:]
     obs_df.to_csv(os.path.join(template_d,"restart1.csv"))
 
-    shutil.copy2(os.path.join(test_d,"pest_restart.base.obs.csv"),os.path.join(template_d,"base.csv"))
+    shutil.copy2(os.path.join(test_d,"pest_restart.obs+noise.csv"),os.path.join(template_d,"base.csv"))
     shutil.copy2(os.path.join(test_d, "pest_restart.0.par.csv"), os.path.join(template_d, "par_base.csv"))
 
     #pst.pestpp_options = {}
@@ -731,7 +731,7 @@ def tenpar_restart_test_2():
     #obs_df = obs_df.iloc[::2,:]
     obs_df.to_csv(os.path.join(template_d,"restart1.csv"))
 
-    shutil.copy2(os.path.join(test_d,"pest_restart.base.obs.csv"),os.path.join(template_d,"base.csv"))
+    shutil.copy2(os.path.join(test_d,"pest_restart.obs+noise.csv"),os.path.join(template_d,"base.csv"))
     shutil.copy2(os.path.join(test_d, "pest_restart.0.par.csv"), os.path.join(template_d, "par_base.csv"))
 
     #pst.pestpp_options = {}

@@ -76,7 +76,7 @@ noptmax = 3
 
 compare_files = ["pest.phi.actual.csv", "pest.phi.meas.csv", "pest.phi.regul.csv",
                  "pest.{0}.par.csv".format(noptmax), "pest.{0}.obs.csv".format(noptmax),
-                 "pest.{0}.par.csv".format(0), "pest.base.obs.csv"]
+                 "pest.{0}.par.csv".format(0), "pest.obs+noise.csv"]
 diff_tol = 1.0e-6
 port = 4016
 num_reals = 10
@@ -1288,7 +1288,7 @@ def tenpar_incr_num_reals_test():
     pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
 
     pst.pestpp_options["ies_par_en"] = "pest_restart.2.par.csv"
-    pst.pestpp_options["ies_obs_en"] = "pest_restart.base.obs.csv"
+    pst.pestpp_options["ies_obs_en"] = "pest_restart.obs+noise.csv"
     pst.pestpp_options["ies_restart_obs_en"] = "pest_restart.2.obs.csv"
     #pst.pestpp_options["ies_num_reals"] += 1
     pst.control_data.noptmax = 2
@@ -1322,7 +1322,7 @@ def tenpar_subset_how_test():
     pst.pestpp_options["lambda_scale_fac"] = 1.0
     pst.pestpp_options["ies_num_reals"] = num_reals
     pst.pestpp_options["ies_restart_obs_en"] = "pest_restart.0.obs.csv"
-    pst.pestpp_options["ies_obs_en"] = "pest_restart.base.obs.csv"
+    pst.pestpp_options["ies_obs_en"] = "pest_restart.obs+noise.csv"
     pst.control_data.noptmax = 1
     means = []
     for how in ["first","last","random","phi_based"]:

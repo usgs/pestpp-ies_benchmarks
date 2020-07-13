@@ -74,7 +74,7 @@ noptmax = 3
 
 compare_files = ["pest.phi.actual.csv", "pest.phi.meas.csv", "pest.phi.regul.csv",
                  "pest.{0}.par.csv".format(noptmax), "pest.{0}.obs.csv".format(noptmax),
-                 "pest.{0}.par.csv".format(0), "pest.base.obs.csv"]
+                 "pest.{0}.par.csv".format(0), "pest.obs+noise.csv"]
 diff_tol = 1.0e-6
 port = 4016
 num_reals = 10
@@ -761,7 +761,7 @@ def tenpar_by_vars_test():
     assert diff.apply(np.abs).max().max() == 0.0
 
     shutil.copy2(os.path.join(test_d,"pest_vars.0.par.csv"),os.path.join(template_d,"restart_by_vars.par.csv"))
-    shutil.copy2(os.path.join(test_d, "pest_vars.base.obs.csv"), os.path.join(template_d, "restart_by_vars.obs.csv"))
+    shutil.copy2(os.path.join(test_d, "pest_vars.obs+noise.csv"), os.path.join(template_d, "restart_by_vars.obs.csv"))
     pst.pestpp_options['ies_par_en'] = "restart_by_vars.par.csv"
     pst.pestpp_options['ies_obs_en'] = "restart_by_vars.obs.csv"
     pst.write(pst_name)
@@ -799,7 +799,7 @@ def tenpar_xsec_autoadaloc_test():
                                master_dir=test_d, verbose=True, worker_root=model_d,
                                port=port)
     pst.pestpp_options["ies_par_en"] = "pest_aal.0.par.csv"
-    pst.pestpp_options["ies_obs_en"] = "pest_aal.base.obs.csv"
+    pst.pestpp_options["ies_obs_en"] = "pest_aal.obs+noise.csv"
     pst.pestpp_options["ies_restart_obs_en"] = "pest_aal.0.obs.csv"
     pst.pestpp_options["ies_autoadaloc"] = True
     pst.pestpp_options["ies_verbose_level"] = 3
@@ -810,7 +810,7 @@ def tenpar_xsec_autoadaloc_test():
     oe = pyemu.ObservationEnsemble.from_dataframe(
         df=pd.read_csv(os.path.join(test_d, "pest_aal.0.obs.csv"), index_col=0), pst=pst)
 
-    for f in ["pest_aal.0.par.csv","pest_aal.base.obs.csv","pest_aal.0.obs.csv"]:
+    for f in ["pest_aal.0.par.csv","pest_aal.obs+noise.csv","pest_aal.0.obs.csv"]:
         shutil.copy2(os.path.join(test_d,f),os.path.join(template_d,f))
 
 
