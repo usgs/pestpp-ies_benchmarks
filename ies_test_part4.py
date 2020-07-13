@@ -75,7 +75,7 @@ noptmax = 3
 
 compare_files = ["pest.phi.actual.csv", "pest.phi.meas.csv", "pest.phi.regul.csv",
                  "pest.{0}.par.csv".format(noptmax), "pest.{0}.obs.csv".format(noptmax),
-                 "pest.{0}.par.csv".format(0), "pest.base.obs.csv"]
+                 "pest.{0}.par.csv".format(0), "pest.obs+noise.csv"]
 diff_tol = 1.0e-6
 port = 4016
 num_reals = 10
@@ -283,7 +283,7 @@ def tenpar_xsec_combined_autoadaloc_test():
 
     pst.pestpp_options["ies_localizer"] = "loc.mat"
     pst.pestpp_options["ies_par_en"] = "pest_aal.0.par.csv"
-    pst.pestpp_options["ies_obs_en"] = "pest_aal.base.obs.csv"
+    pst.pestpp_options["ies_obs_en"] = "pest_aal.obs+noise.csv"
     pst.pestpp_options["ies_restart_obs_en"] = "pest_aal.0.obs.csv"
     pst.pestpp_options["ies_autoadaloc"] = True
     pst.pestpp_options["ies_verbose_level"] = 3
@@ -295,7 +295,7 @@ def tenpar_xsec_combined_autoadaloc_test():
     oe = pyemu.ObservationEnsemble.from_dataframe(
         df=pd.read_csv(os.path.join(test_d, "pest_aal.0.obs.csv"), index_col=0), pst=pst)
 
-    for f in ["pest_aal.0.par.csv","pest_aal.base.obs.csv","pest_aal.0.obs.csv"]:
+    for f in ["pest_aal.0.par.csv","pest_aal.obs+noise.csv","pest_aal.0.obs.csv"]:
         shutil.copy2(os.path.join(test_d,f),os.path.join(template_d,f))
 
 
@@ -742,7 +742,7 @@ def freyberg_pdc_test():
     print(dropped)
     shutil.copy2(os.path.join(test_d,"pest_base.0.par.csv"),os.path.join(template_d,"pdc_par.csv"))
     pst.pestpp_options["ies_par_en"] = "pdc_par.csv"
-    shutil.copy2(os.path.join(test_d,"pest_base.base.obs.csv"),os.path.join(template_d,"pdc_obs.csv"))
+    shutil.copy2(os.path.join(test_d,"pest_base.obs+noise.csv"),os.path.join(template_d,"pdc_obs.csv"))
     pst.pestpp_options["ies_obs_en"] = "pdc_obs.csv"
     
     pst.observation_data.loc[dropped,"weight"] = 0.0
@@ -766,7 +766,7 @@ def freyberg_pdc_test():
                                worker_root=model_d,port=port)
 
     oe = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.0.obs.csv"),index_col=0)
-    oe_base = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.base.obs.csv"),index_col=0)
+    oe_base = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.obs+noise.csv"),index_col=0)
     smn,sstd = oe.mean(),oe.std()
     omn,ostd = oe_base.mean(),oe_base.std()
     for name in oe.columns:
@@ -795,7 +795,7 @@ def freyberg_pdc_test():
                                worker_root=model_d,port=port)
 
     oe = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.0.obs.csv"),index_col=0)
-    oe_base = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.base.obs.csv"),index_col=0)
+    oe_base = pd.read_csv(os.path.join(test_d,"pest_pdc_dist.obs+noise.csv"),index_col=0)
     smn,sstd = oe.mean(),oe.std()
     omn,ostd = oe_base.mean(),oe_base.std()
     for name in oe.columns:
