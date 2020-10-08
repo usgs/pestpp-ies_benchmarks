@@ -8,40 +8,6 @@ import platform
 import matplotlib.pyplot as plt
 import pyemu
 
-tests = """0) 10par_xsec "standard user mode" - draw reals from par-bounds prior and obs noise from weights
-0a) 10par_xsec same as 0) but with multple lambda 
-1) 10par_xsec start with existing par csv and obs csv - using empirical parcov and obscov
-1a) 10par_xsec start with existing par csv and obs csv - using parcov file
-2) 10par_xsec start with existing par csv and drawing obs en from weights 
-3) 10par_xsec restart with full simulated obs en
-3a) 10par_xsec restart with failed runs in simulated obs en
-3b) 10par_xsec restart with failed runs and bad phi runs in simulated obs en with multiple lam
-4) 10par_xsec reg_factor = 0.5 test
-5)  10par_xsec full solution test with standard draw mode
-5a) 10par_xsec full solution test with empirical parcov
-6) freyberg "standard user mode" - draw reals from par-bounds prior and obs noise from weights
-6a) freyberg same as 0) but with multple lambda 
-7) freyberg draw par en from full parcov supplied in file
-8) freyberg full solution with empirical parcov - supplied par csv, obs csv and restart csv with fails, bad phi,MAP solution, prior scaling, lam mults 
-9) synth restart and upgrade 1.1M par problem"""
-
-ies_vars = ["ies_par_en", "ies_obs_en", "ies_restart_obs_en",
-            "ies_bad_phi", "parcov_filename", "ies_num_reals",
-            "ies_use_approx", "ies_use_prior_scaling", "ies_reg_factor",
-            "ies_lambda_mults", "ies_initial_lambda","ies_include_base","ies_subset_size"]
-
-
-# the old path system before moving to separate benchmarks repo
-# intel = False
-# if "windows" in platform.platform().lower():
-#     if intel:
-#         exe_path = os.path.join("..", "..", "..", "bin", "iwin", "ipestpp-ies.exe")
-#     else:
-#         exe_path = os.path.join("..", "..", "..", "bin", "win", "pestpp-ies.exe")
-# elif "darwin" in platform.platform().lower():
-#     exe_path = os.path.join("..", "..", "..", "bin", "mac", "pestpp-ies")
-# else:
-#     exe_path = os.path.join("..", "..", "..", "bin", "linux", "pestpp-ies")
 
 bin_path = os.path.join("test_bin")
 if "linux" in platform.platform().lower():
@@ -1490,5 +1456,5 @@ if __name__ == "__main__":
     # tenpar_localize_how_test()
     #tenpar_incr_num_reals_test()
     #freyberg_dist_local_invest()
-    test_freyberg_full_cov_reorder_run()
+    #test_freyberg_full_cov_reorder_run()
     #test_freyberg_full_cov()

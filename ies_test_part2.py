@@ -8,40 +8,6 @@ import platform
 import matplotlib.pyplot as plt
 import pyemu
 
-tests = """0) 10par_xsec "standard user mode" - draw reals from par-bounds prior and obs noise from weights
-0a) 10par_xsec same as 0) but with multple lambda 
-1) 10par_xsec start with existing par csv and obs csv - using empirical parcov and obscov
-1a) 10par_xsec start with existing par csv and obs csv - using parcov file
-2) 10par_xsec start with existing par csv and drawing obs en from weights 
-3) 10par_xsec restart with full simulated obs en
-3a) 10par_xsec restart with failed runs in simulated obs en
-3b) 10par_xsec restart with failed runs and bad phi runs in simulated obs en with multiple lam
-4) 10par_xsec reg_factor = 0.5 test
-5)  10par_xsec full solution test with standard draw mode
-5a) 10par_xsec full solution test with empirical parcov
-6) freyberg "standard user mode" - draw reals from par-bounds prior and obs noise from weights
-6a) freyberg same as 0) but with multple lambda 
-7) freyberg draw par en from full parcov supplied in file
-8) freyberg full solution with empirical parcov - supplied par csv, obs csv and restart csv with fails, bad phi,MAP solution, prior scaling, lam mults 
-9) synth restart and upgrade 1.1M par problem"""
-
-ies_vars = ["ies_par_en", "ies_obs_en", "ies_restart_obs_en",
-            "ies_bad_phi", "parcov_filename", "ies_num_reals",
-            "ies_use_approx", "ies_use_prior_scaling", "ies_reg_factor",
-            "ies_lambda_mults", "ies_initial_lambda","ies_include_base","ies_subset_size"]
-
-
-# the old path system before moving to separate benchmarks repo
-# intel = False
-# if "windows" in platform.platform().lower():
-#     if intel:
-#         exe_path = os.path.join("..", "..", "..", "bin", "iwin", "ipestpp-ies.exe")
-#     else:
-#         exe_path = os.path.join("..", "..", "..", "bin", "win", "pestpp-ies.exe")
-# elif "darwin" in platform.platform().lower():
-#     exe_path = os.path.join("..", "..", "..", "bin", "mac", "pestpp-ies")
-# else:
-#     exe_path = os.path.join("..", "..", "..", "bin", "linux", "pestpp-ies")
 
 bin_path = os.path.join("test_bin")
 if "linux" in platform.platform().lower():
@@ -666,8 +632,6 @@ def tenpar_par_restart_test():
     assert diff.max().max()==0.0,diff.max().max()
 
 
-
-
 def tenpar_rns_test():
     """tenpar rns test"""
     model_d = "ies_10par_xsec"
@@ -787,10 +751,61 @@ def tenpar_restart_test_2():
     assert d.sum() == 0.0,d.sum()
 
 
+def tenpar_restart_wo_noise_w_base_test():
+    """tenpar par restart tests"""
+    model_d = "ies_10par_xsec"
+
+    template_d = os.path.join(model_d, "template")
+    pst = pyemu.Pst(os.path.join(template_d, "pest.pst"))
+    num_reals = 30
+    test_d = os.path.join(model_d, "master_restart_wo_noise_w_base")
+    if os.path.exists(test_d):
+       shutil.rmtree(test_d)
+    #shutil.copytree(template_d, test_d)
+    pst.pestpp_options = {}
+    pst.pestpp_options = {"ies_num_reals":num_reals}
+    pst.pestpp_options["ies_include_base"] = True
+    pst.pestpp_options["ies_subset_how"] = "first"
+    pst.pestpp_options["ies_accept_phi_fac"] = 1.0
+    pst.pestpp_options["ies_lambda_mults"] = 1.0
+    pst.pestpp_options["lambda_scale_fac"] = 1.0
+    pst.pestpp_options["ies_lambda_dec_fac"] = 1.0
+    pst.pestpp_options["ies_init_lam"] = 10.0
+    pst.pestpp_options["ies_save_binary"] = False
+    pst.control_data.noptmax = 1
+    pst.write(os.path.join(template_d,"pest_restart.pst"))
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart.pst", num_workers=10,
+                                worker_root=model_d, master_dir=test_d, port=port)
+    #pyemu.os_utils.run("{0} {1}".format(exe_path, "pest_restart.pst"), cwd=test_d)
+
+    par_df = pd.read_csv(os.path.join(test_d,"pest_restart.1.par.csv"),index_col=0)
+    #par_df = par_df.iloc[::2,:]
+    par_df.to_csv(os.path.join(template_d,"par1.csv"))
+
+    obs_df = pd.read_csv(os.path.join(test_d,"pest_restart.1.obs.csv"),index_col=0)
+    #obs_df = obs_df.iloc[::2,:]
+    obs_df.to_csv(os.path.join(template_d,"restart1.csv"))
+
+    #pst.pestpp_options = {}
+    pst.pestpp_options["ies_par_en"] = "par1.csv"
+    pst.pestpp_options["ies_restart_obs_en"] = "restart1.csv"
+    #pst.pestpp_options["ies_restart_par_en"] = "par1.csv"
+    pst.control_data.noptmax = -1
+    pst.write(os.path.join(template_d,"pest_restart1.pst"))
+    if os.path.exists(test_d):
+        shutil.rmtree(test_d)
+    pyemu.os_utils.start_workers(template_d, exe_path, "pest_restart1.pst", num_workers=1,
+                                worker_root=model_d, master_dir=test_d, port=port)
+    
+    on_en_file = os.path.join(test_d,"pest_restart1.obs+noise.csv")
+    assert os.path.exists(on_en_file),on_en_file
+    df = pd.read_csv(on_en_file,index_col=0)
+    print(df.index)
+    assert "base" in df.index.values
 
 
 if __name__ == "__main__":
-    tenpar_restart_test_2()
+    #tenpar_restart_test_2()
     #tenpar_restart_binary_test()
     #write_empty_test_matrix()
 
@@ -837,3 +852,5 @@ if __name__ == "__main__":
     #tenpar_tied_test()
     #tenpar_by_vars_test()
     #tenpar_par_restart_test()
+    shutil.copy2(os.path.join("..","exe","windows","x64","Debug","pestpp-ies.exe"),os.path.join("..","bin","win","pestpp-ies.exe"))
+    tenpar_restart_wo_noise_w_base_test()
