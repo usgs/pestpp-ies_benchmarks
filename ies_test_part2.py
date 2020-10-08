@@ -789,7 +789,7 @@ def tenpar_restart_wo_noise_w_base_test():
     #pst.pestpp_options = {}
     pst.pestpp_options["ies_par_en"] = "par1.csv"
     pst.pestpp_options["ies_restart_obs_en"] = "restart1.csv"
-    #pst.pestpp_options["ies_restart_par_en"] = "par1.csv"
+    pst.pestpp_options["ies_restart_par_en"] = "par1.csv"
     pst.control_data.noptmax = -1
     pst.write(os.path.join(template_d,"pest_restart1.pst"))
     if os.path.exists(test_d):
