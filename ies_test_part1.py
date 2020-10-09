@@ -1424,10 +1424,10 @@ def tenpar_localizer_test3():
 
 
 if __name__ == "__main__":
-    # write_empty_test_matrix()
+    
 
     # full list of tests
-    # tenpar_subset_test()
+    tenpar_subset_test()
     # tenpar_full_cov_test()
     # eval_freyberg_full_cov_reorder()
     #test_freyberg_full_cov_reorder()

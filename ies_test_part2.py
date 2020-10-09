@@ -46,11 +46,6 @@ compare_files = ["pest.phi.actual.csv", "pest.phi.meas.csv", "pest.phi.regul.csv
 diff_tol = 1.0e-6
 port = 4016
 num_reals = 10
-def write_empty_test_matrix():
-    test_names = [t.split()[0] for t in tests.split('\n')]
-    df = pd.DataFrame(index=test_names, columns=ies_vars)
-    df.loc[:, "text"] = tests.split('\n')
-    df.to_csv("ies_test.blank.csv")
 
 
 def setup_suite_dir(model_d):
