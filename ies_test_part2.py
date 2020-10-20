@@ -797,6 +797,11 @@ def tenpar_restart_wo_noise_w_base_test():
     df = pd.read_csv(on_en_file,index_col=0)
     print(df.index)
     assert "base" in df.index.values
+    nz_obs_vals = pst.observation_data.loc[pst.nnz_obs_names,"obsval"]
+    d = df.loc["base",pst.nnz_obs_names] - nz_obs_vals
+    print(nz_obs_vals,df.loc["base",pst.nnz_obs_names],d)
+    assert d.sum() == 0,d.sum()
+
 
 
 if __name__ == "__main__":
